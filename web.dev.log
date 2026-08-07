@@ -1,0 +1,14 @@
+
+> vibeforge-workspace@0.1.0 dev
+> npm --workspace client run dev
+
+
+> @vibeforge/client@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.0 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.239:3001
+✓ Ready in 980ms
+✓ Running next.config.ts took 44ms
+[?25h

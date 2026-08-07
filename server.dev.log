@@ -1,0 +1,5 @@
+
+> @vibeforge/server@0.1.0 dev
+> node src/index.js
+
+VibeForge server listening on http://localhost:4000

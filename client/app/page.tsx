@@ -1,49 +1,66 @@
-import Velaris from "@/components/ui/velaris";
+"use client";
+
 import { 
   ArrowRight, GitBranch, ScanSearch, Terminal, Star, 
   Menu, Copy, Activity, Layers, Code, CheckCircle2, X 
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Velaris from "@/components/ui/velaris";
 
 export default function LandingPage() {
+  const [repoUrl, setRepoUrl] = useState("");
+  const router = useRouter();
+
+  function scan(repo = repoUrl) {
+    if (!repo.trim()) return;
+    router.push(`/scanner?repo=${encodeURIComponent(repo.trim())}`);
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-white selection:bg-emerald-500/30 selection:text-emerald-200 font-sans relative">
       
       {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 w-full h-[56px] border-b border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-md">
+        <div className="relative max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           {/* Left */}
           <Link href="/" className="flex items-center gap-2">
-            <Terminal className="h-5 w-5 text-emerald-400" />
-            <span className="font-bold text-xl tracking-tight text-white">VibeForge</span>
+            <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-white text-black">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <span className="font-semibold text-[15px] tracking-[-0.01em] text-white">VibeForge</span>
           </Link>
           
           {/* Center */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-300">
-            <Link href="#features" className="hover:text-emerald-400 transition-colors">Features</Link>
-            <Link href="#scanner" className="hover:text-emerald-400 transition-colors">Scanner</Link>
-            <Link href="#editor" className="hover:text-emerald-400 transition-colors">Editor</Link>
-            <Link href="#cli" className="hover:text-emerald-400 transition-colors">CLI</Link>
-            <Link href="/pricing" className="hover:text-emerald-400 transition-colors">Pricing</Link>
+          <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
+            <Link href="#features" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Features</Link>
+            <Link href="#scanner" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Scanner</Link>
+            <Link href="#editor" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Editor</Link>
+            <Link href="#cli" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">CLI</Link>
+            <Link href="/pricing" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Pricing</Link>
           </nav>
           
           {/* Right */}
-          <div className="hidden md:flex items-center gap-4">
-            <a href="https://github.com/vibeforge/vibeforge" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
-              <Star className="h-4 w-4" />
-              <span>Star</span>
+          <div className="hidden md:flex items-center gap-3">
+            <a href="https://github.com/vibeforge/vibeforge" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-[6px] border border-white/[0.08] px-[10px] py-[6px] text-[13.5px] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
+              <Star className="h-3.5 w-3.5" />
+              <span className="tracking-[-0.01em]">Star</span>
             </a>
-            <Link href="/login" className="text-sm font-medium text-white hover:text-emerald-400 px-4 py-2 transition-colors">
+            
+            <div className="h-[14px] w-[1px] bg-white/[0.08]" />
+            
+            <Link href="/login" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
               Login
             </Link>
-            <Link href="/pricing" className="text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-full transition-colors">
+            <Link href="/pricing" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
               Get Started
             </Link>
           </div>
           
           {/* Mobile Menu */}
-          <button className="md:hidden text-zinc-300 hover:text-white">
-            <Menu className="h-6 w-6" />
+          <button className="md:hidden text-white/[0.55] hover:text-white transition duration-150 p-1">
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </header>
@@ -53,37 +70,43 @@ export default function LandingPage() {
         {/* Animated grid CSS overlay */}
         <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
         
-        <Velaris height="calc(100vh - 4rem)" className="w-full relative z-10">
-          <div className="flex h-full w-full flex-col items-center justify-center gap-8 px-6 text-center">
+        <Velaris height="calc(100vh - 56px)" className="w-full relative z-10">
+          {/* Subtle dark radial gradient behind the content to make text pop against bright green */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.4)_0%,transparent_65%)] pointer-events-none z-0" />
+          
+          <div className="flex h-full w-full flex-col items-center justify-center gap-8 px-6 text-center relative z-10">
             
             <div className="animate-fade-in-up mt-16">
-              <Link href="/download" className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 px-5 py-2 text-sm font-medium text-emerald-300 backdrop-blur-md shadow-2xl transition-colors">
-                <Terminal className="h-4 w-4" />
-                Now with CLI support <ArrowRight className="h-4 w-4 ml-1" />
+              <Link href="/download" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 hover:bg-black/60 px-5 py-2 text-sm font-medium text-white backdrop-blur-xl transition-colors shadow-2xl">
+                <Terminal className="h-4 w-4 text-emerald-400" />
+                Now with CLI support <ArrowRight className="h-4 w-4 ml-1 text-emerald-400" />
               </Link>
             </div>
 
-            <h1 className="max-w-5xl text-5xl font-extrabold font-serif tracking-tighter text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1] drop-shadow-2xl">
+            <h1 className="max-w-5xl text-5xl font-bold font-serif tracking-tight text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1] drop-shadow-xl">
               Analyze your repo. <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-600 font-serif">
+              <span className="text-emerald-400 font-serif italic drop-shadow-md">
                 Elevate your code.
               </span>
             </h1>
             
-            <p className="max-w-2xl text-lg text-white/80 sm:text-xl font-light tracking-wide backdrop-blur-sm">
+            <p className="max-w-2xl text-lg text-zinc-300 sm:text-xl font-light tracking-wide backdrop-blur-sm drop-shadow-md">
               Connect your Git repository and let AI instantly review your codebase for vulnerabilities, performance, and architecture best practices.
             </p>
             
-            <div className="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row backdrop-blur-sm">
+            <div className="mt-8 flex w-full max-w-xl flex-col gap-4 sm:flex-row backdrop-blur-sm">
               <div className="relative flex-1 group">
                 <GitBranch className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-emerald-400 transition-colors" />
                 <input 
                   type="text" 
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && scan()}
                   placeholder="https://github.com/owner/repo" 
-                  className="w-full rounded-xl border border-white/20 bg-black/40 py-4 pl-12 pr-4 text-white placeholder:text-white/40 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 backdrop-blur-xl transition-all shadow-inner"
+                  className="w-full h-[56px] rounded-[12px] border border-white/15 bg-black/60 pl-12 pr-4 text-white placeholder:text-white/40 focus:border-[#00c97a] focus:outline-none focus:ring-1 focus:ring-[#00c97a] backdrop-blur-xl transition-all shadow-2xl"
                 />
               </div>
-              <button className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-8 py-4 font-bold text-black transition-all hover:bg-emerald-400 hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-95">
+              <button onClick={() => scan()} className="flex h-[56px] items-center justify-center gap-2 rounded-[12px] bg-[#00c97a] px-8 font-bold text-black transition-all hover:bg-[#00b06b] active:scale-95 shadow-2xl shrink-0">
                 Scan Now <ArrowRight className="h-5 w-5" />
               </button>
             </div>
@@ -159,21 +182,21 @@ export default function LandingPage() {
             </div>
             
             {/* Mock Score Card */}
-            <div className="rounded-2xl border border-white/10 bg-zinc-950 p-8 shadow-2xl relative overflow-hidden">
+            <div className="rounded-2xl border border-white/10 bg-zinc-950 p-8 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[50px] rounded-full"></div>
               
-              <div className="flex justify-between items-start mb-8">
+              <div className="flex justify-between items-start mb-8 relative z-10">
                 <div>
                   <h3 className="text-2xl font-bold font-serif text-white">vibe-forge/core</h3>
                   <p className="text-zinc-500">Scanned 2 mins ago</p>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-5xl font-black font-serif text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">B</div>
+                  <div className="text-5xl font-black font-serif text-emerald-400">B</div>
                   <div className="text-zinc-400 font-medium mt-1">74 / 100</div>
                 </div>
               </div>
               
-              <div className="space-y-4 mb-8">
+              <div className="space-y-4 mb-8 relative z-10">
                 {[
                   { name: "Security", score: 61, width: "61%", color: "bg-red-500" },
                   { name: "AI slop", score: 78, width: "78%", color: "bg-amber-500" },
@@ -193,7 +216,7 @@ export default function LandingPage() {
                 ))}
               </div>
               
-              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 flex gap-3 mt-4">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 flex gap-3 mt-4 relative z-10">
                 <CheckCircle2 className="h-5 w-5 text-red-500 shrink-0" />
                 <div>
                   <h4 className="text-red-400 font-medium text-sm">Hardcoded secrets detected</h4>
@@ -206,7 +229,7 @@ export default function LandingPage() {
 
         {/* CLI Section */}
         <section id="cli" className="w-full py-24 bg-zinc-950 px-6 border-y border-white/5">
-          <div className="max-w-6xl mx-auto rounded-3xl border border-white/10 bg-black overflow-hidden flex flex-col lg:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div className="max-w-6xl mx-auto rounded-3xl border border-white/10 bg-black overflow-hidden flex flex-col lg:flex-row">
             <div className="p-12 lg:w-1/2 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10">
               <h2 className="text-3xl sm:text-4xl font-bold font-serif text-white tracking-tight mb-4">
                 Scan from your <span className="text-emerald-400 italic font-serif">terminal</span>
@@ -230,7 +253,7 @@ export default function LandingPage() {
             </div>
             
             <div className="p-6 lg:w-1/2 bg-[#0C0C0C] flex flex-col justify-center">
-              <div className="rounded-xl bg-black border border-white/10 font-mono text-sm overflow-hidden shadow-2xl">
+              <div className="rounded-xl bg-black border border-white/10 font-mono text-sm overflow-hidden">
                 <div className="flex gap-2 px-4 py-3 border-b border-white/5 bg-zinc-900/50">
                   <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
                   <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
@@ -272,7 +295,7 @@ export default function LandingPage() {
                   <li className="flex gap-3 items-center opacity-50"><X className="h-5 w-5" /> No CLI access</li>
                   <li className="flex gap-3 items-center opacity-50"><X className="h-5 w-5" /> No scan history</li>
                 </ul>
-                <button className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium py-3 transition-colors border border-white/10">
+                <button className="w-full rounded-[6px] bg-white/10 hover:bg-white/20 text-white font-medium py-3 transition-colors">
                   Start for free
                 </button>
               </div>
@@ -291,7 +314,7 @@ export default function LandingPage() {
                     <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Report exports</li>
                     <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Full scan history</li>
                   </ul>
-                  <Link href="/pricing" className="w-full flex justify-center rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                  <Link href="/pricing" className="w-full flex justify-center rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] text-black font-bold py-3 transition-colors">
                     Subscribe to Pro
                   </Link>
                 </div>
@@ -318,10 +341,10 @@ export default function LandingPage() {
               Join thousands of developers shipping better, more secure software with VibeForge.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="rounded-xl bg-emerald-500 px-8 py-4 font-bold text-black transition-all hover:bg-emerald-400 hover:scale-105 active:scale-95 shadow-lg">
+              <button className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-8 py-4 font-bold text-black transition-colors">
                 Scan a repo
               </button>
-              <button className="rounded-xl bg-white/10 px-8 py-4 font-bold text-white border border-white/20 transition-all hover:bg-white/20 shadow-lg">
+              <button className="rounded-[6px] bg-white/10 hover:bg-white/20 px-8 py-4 font-bold text-white transition-colors">
                 Install CLI
               </button>
             </div>
@@ -335,15 +358,17 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-24">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-2">
-                <Terminal className="h-5 w-5 text-emerald-400" />
-                <span className="font-bold text-xl tracking-tight text-white">VibeForge</span>
+                <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-white text-black">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span className="font-semibold text-[15px] tracking-[-0.01em] text-white">VibeForge</span>
               </div>
               <p className="text-zinc-500 text-sm">
                 AI-powered codebase analysis and resolution engine.
               </p>
               <div className="mt-2">
                 <a href="https://github.com/vibeforge/vibeforge" target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white transition-colors">
-                  <Star className="h-5 w-5" />
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
                 </a>
               </div>
             </div>

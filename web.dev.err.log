@@ -1,0 +1,24 @@
+⚠ Port 3000 is in use by process 820, using available port 3001 instead.
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\PROJECT FOLDERS\Vibrforge\NeuroNexus\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\PROJECT FOLDERS\Vibrforge\NeuroNexus\client\package-lock.json
+
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          820
+- Dir:          D:\PROJECT FOLDERS\Vibrforge\NeuroNexus\client
+- Log:          .next\dev\logs\next-development.log
+
+You can access the existing server at http://localhost:3000,
+or run taskkill /PID 820 /F to stop it and start a new one.
+npm error Lifecycle script `dev` failed with error:
+npm error code 1
+npm error path D:\PROJECT FOLDERS\Vibrforge\NeuroNexus\client
+npm error workspace @vibeforge/client@0.1.0
+npm error location D:\PROJECT FOLDERS\Vibrforge\NeuroNexus\client
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev

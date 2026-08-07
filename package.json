@@ -1,0 +1,12 @@
+{
+  "name": "vibeforge-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["client", "server", "packages/cli"],
+  "scripts": {
+    "dev": "npm --workspace client run dev",
+    "server": "npm --workspace server run dev",
+    "build": "npm --workspace client run build",
+    "lint": "npm --workspace client run lint"
+  }
+}
