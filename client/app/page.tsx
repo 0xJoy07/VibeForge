@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Velaris from "@/components/ui/velaris";
+import { SquishyCard } from "@/components/ui/squishy-card";
 
 export default function LandingPage() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -285,40 +286,31 @@ export default function LandingPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              {/* Free Card */}
-              <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 flex flex-col hover:border-white/20 transition-colors">
-                <h3 className="text-2xl font-bold font-serif text-white mb-2">Free</h3>
-                <div className="text-4xl font-bold text-white mb-6">$0<span className="text-lg text-zinc-500 font-normal">/mo</span></div>
-                <ul className="space-y-4 mb-8 flex-1 text-zinc-400">
-                  <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> 3 web scans per day</li>
-                  <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Basic editor integration</li>
-                  <li className="flex gap-3 items-center opacity-50"><X className="h-5 w-5" /> No CLI access</li>
-                  <li className="flex gap-3 items-center opacity-50"><X className="h-5 w-5" /> No scan history</li>
-                </ul>
-                <button className="w-full rounded-[6px] bg-white/10 hover:bg-white/20 text-white font-medium py-3 transition-colors">
-                  Start for free
-                </button>
-              </div>
-              
-              {/* Pro Card */}
-              <div className="rounded-3xl border border-emerald-500/50 bg-zinc-900 p-8 flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-emerald-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg z-10">POPULAR</div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[50px] rounded-full z-0"></div>
-                
-                <div className="relative z-10 flex flex-col h-full">
-                  <h3 className="text-2xl font-bold font-serif text-white mb-2">Pro</h3>
-                  <div className="text-4xl font-bold text-white mb-6">$49<span className="text-lg text-zinc-500 font-normal">/mo</span></div>
-                  <ul className="space-y-4 mb-8 flex-1 text-zinc-300">
-                    <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Unlimited scans</li>
-                    <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Full CLI access</li>
-                    <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Report exports</li>
-                    <li className="flex gap-3 items-center"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Full scan history</li>
-                  </ul>
-                  <Link href="/pricing" className="w-full flex justify-center rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] text-black font-bold py-3 transition-colors">
-                    Subscribe to Pro
-                  </Link>
-                </div>
-              </div>
+              <SquishyCard 
+                tier="Free"
+                price="₹0"
+                description="Perfect for individual developers and small open-source projects."
+                features={[
+                  { name: "3 web scans per day", included: true },
+                  { name: "Basic editor integration", included: true },
+                  { name: "No CLI access", included: false },
+                  { name: "No scan history", included: false }
+                ]}
+                buttonText="Start for free"
+              />
+              <SquishyCard 
+                tier="Pro"
+                price="₹49"
+                description="For professional developers building production applications."
+                features={[
+                  { name: "Unlimited scans", included: true },
+                  { name: "Full CLI access", included: true },
+                  { name: "Report exports", included: true },
+                  { name: "Full scan history", included: true }
+                ]}
+                buttonText="Subscribe to Pro"
+                isPopular={true}
+              />
             </div>
             
             <div className="text-center">
