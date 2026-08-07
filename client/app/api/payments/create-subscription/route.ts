@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:4000";
 
@@ -8,7 +8,7 @@ const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:4000";
  * Proxies to the Express server which owns all Razorpay logic (server/src/payments/).
  */
 export async function POST() {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {

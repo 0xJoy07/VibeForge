@@ -3,7 +3,7 @@ import { getUser } from "@/lib/auth";
 import { getFingerprint, isPro } from "@/lib/auth";
 import { checkAndIncrementQuota } from "@/lib/quota";
 import { fetchRepoFiles } from "@/lib/github";
-import { reviewRepo } from "@/lib/gemini";
+import { reviewRepo } from "@/lib/ai";
 import { prisma } from "@/lib/prisma";
 import { validateCliToken } from "@/lib/cli-token";
 
@@ -65,11 +65,24 @@ export async function POST(request: Request) {
       // Pro check is already enforced inside validateCliToken, so quota is bypassed
     } else {
       // 2. Fall back to Web Session
-      const session = await getUser();
+      let session = null;
+      try {
+        session = await getUser();
+      } catch (err) {
+        console.error("[scan-repo] getUser error:", err);
+      }
+      
       const fingerprint = getFingerprint(request);
-
       userId = session?.dbUser?.id ?? null;
-      const proUser = userId ? await isPro(userId) : false;
+      
+      let proUser = false;
+      if (userId) {
+        try {
+          proUser = await isPro(userId);
+        } catch (err) {
+          console.error("[scan-repo] isPro error:", err);
+        }
+      }
 
       if (!proUser) {
         const quota = await checkAndIncrementQuota(fingerprint);
@@ -119,7 +132,7 @@ export async function POST(request: Request) {
     try {
       result = await reviewRepo(files);
     } catch (e) {
-      console.error("[Groq Error]:", e);
+      console.error("[Gemini Error in reviewRepo]:", e);
       return NextResponse.json({ error: "AI review failed. Please try again." }, { status: 500 });
     }
 

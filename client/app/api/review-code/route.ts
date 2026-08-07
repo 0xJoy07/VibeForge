@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUser, getFingerprint, isPro } from "@/lib/auth";
 import { checkAndIncrementQuota } from "@/lib/quota";
-import { reviewSnippet } from "@/lib/gemini";
+import { reviewSnippet } from "@/lib/ai";
 import { prisma } from "@/lib/prisma";
 import { validateCliToken } from "@/lib/cli-token";
 
@@ -55,11 +55,24 @@ export async function POST(request: Request) {
       // Pro check is already enforced inside validateCliToken, so quota is bypassed
     } else {
       // 2. Fall back to Web Session
-      const session = await getUser();
+      let session = null;
+      try {
+        session = await getUser();
+      } catch (err) {
+        console.error("[review-code] getUser error:", err);
+      }
+      
       const fingerprint = getFingerprint(request);
-
       userId = session?.dbUser?.id ?? null;
-      const proUser = userId ? await isPro(userId) : false;
+      
+      let proUser = false;
+      if (userId) {
+        try {
+          proUser = await isPro(userId);
+        } catch (err) {
+          console.error("[review-code] isPro error:", err);
+        }
+      }
 
       if (!proUser) {
         const quota = await checkAndIncrementQuota(fingerprint);
@@ -80,7 +93,8 @@ export async function POST(request: Request) {
     let result;
     try {
       result = await reviewSnippet(code, language);
-    } catch {
+    } catch (e) {
+      console.error("[Gemini Error in reviewSnippet]:", e);
       return NextResponse.json({ error: "AI review failed. Please try again." }, { status: 500 });
     }
 

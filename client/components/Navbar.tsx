@@ -1,9 +1,31 @@
 "use client";
 
-import { Menu, Star } from "lucide-react";
+import { Menu, Star, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Navbar({ activeItem }: { activeItem?: string }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   const navLinks = [
     { label: "Features", href: "/#features" },
     { label: "Scanner", href: "/scanner" },
@@ -51,12 +73,23 @@ export default function Navbar({ activeItem }: { activeItem?: string }) {
           
           <div className="h-[14px] w-[1px] bg-white/[0.08]" />
           
-          <Link href="/login" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
-            Login
-          </Link>
-          <Link href="/pricing" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
-            Get Started
-          </Link>
+          {isLoading ? (
+            <div className="h-[30px] w-[80px] animate-pulse rounded-[6px] bg-white/5" />
+          ) : isLoggedIn ? (
+            <Link href="/dashboard" className="flex items-center gap-1.5 rounded-[6px] bg-white/10 hover:bg-white/20 px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-white transition duration-150">
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
+                Login
+              </Link>
+              <Link href="/pricing" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
         
         {/* Mobile Menu */}

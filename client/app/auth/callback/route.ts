@@ -1,34 +1,48 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { syncUserToPrisma } from "@/lib/sync-user";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { syncUserToPrisma } from '@/lib/sync-user';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next");
+export async function GET(request: NextRequest) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get('code');
+  const next = searchParams.get('next') ?? '/dashboard';
 
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=auth_failed", request.url));
+    return NextResponse.redirect(`${origin}/login?error=no_code`);
+  }
+
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        }
+      }
+    }
+  );
+
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error || !data.user) {
+    console.error('Auth callback error:', error);
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
   try {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error || !data.session) {
-      console.error("[auth/callback] exchange error:", error?.message);
-      return NextResponse.redirect(new URL("/login?error=auth_failed", request.url));
-    }
-
-    // Sync Supabase user → Prisma User table
-    await syncUserToPrisma(data.session.user);
-
-    // Redirect to the 'next' param (used by CLI auth flow) or default to /dashboard
-    const redirectTo = next && next.startsWith("/") ? next : "/dashboard";
-    return NextResponse.redirect(new URL(redirectTo, request.url));
-  } catch (err) {
-    console.error("[auth/callback] unexpected error:", err);
-    return NextResponse.redirect(new URL("/login?error=auth_failed", request.url));
+    await syncUserToPrisma(data.user);
+  } catch (e) {
+    console.error('syncUserToPrisma failed:', e);
   }
+
+  return NextResponse.redirect(`${origin}${next}`);
 }

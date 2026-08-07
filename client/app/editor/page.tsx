@@ -32,7 +32,15 @@ export default function EditorPage() {
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({ code, language }) 
       });
-      setResult(await response.json());
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || "An error occurred");
+        setReviewState("idle");
+        return;
+      }
+      
+      setResult(data);
       setReviewState("done");
     } catch {
       setReviewState("idle");
@@ -123,7 +131,16 @@ export default function EditorPage() {
 
           {reviewState === "done" && result && (
             <div className="space-y-6">
-              <ScoreRingEditor scores={result.scores} grade={result.grade} />
+              <ScoreRingEditor 
+                scores={result.scores ?? {
+                  security: (result as any).score || 0,
+                  aiSlop: (result as any).score || 0,
+                  codeQuality: (result as any).score || 0,
+                  performance: (result as any).score || 0,
+                  structure: (result as any).score || 0,
+                }} 
+                grade={result.grade} 
+              />
               <EditorIssueList issues={result.issues} />
             </div>
           )}

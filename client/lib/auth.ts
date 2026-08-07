@@ -1,9 +1,10 @@
 import { createHash } from "crypto";
-import { createClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import type { User as PrismaUser } from "@prisma/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { razorpay } from "@/lib/razorpay";
 
 export interface AuthSession {
   supabaseUser: SupabaseUser;
@@ -16,7 +17,7 @@ export interface AuthSession {
  * Returns null if there is no active session.
  */
 export async function getUser(): Promise<AuthSession | null> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,19 +47,38 @@ export async function requireUser(): Promise<AuthSession> {
  * An active subscription must have status === "active" and currentPeriodEnd in the future.
  */
 export async function isPro(userId: string): Promise<boolean> {
-  const subscription = await prisma.subscription.findUnique({
-    where: { userId },
-    select: { status: true, currentPeriodEnd: true },
-  });
-
-  if (!subscription) return false;
-
-  const isActive = subscription.status === "active";
-  const notExpired =
-    subscription.currentPeriodEnd === null ||
-    subscription.currentPeriodEnd > new Date();
-
-  return isActive && notExpired;
+  try {
+    const sub = await prisma.subscription.findUnique({ where: { userId } });
+    if (!sub) return false;
+    
+    if (sub.status === 'active' && sub.currentPeriodEnd && sub.currentPeriodEnd > new Date()) {
+      return true;
+    }
+    
+    if (!razorpay) return false;
+    
+    const razorSub = await razorpay.subscriptions.fetch(sub.razorpaySubId);
+    
+    if (razorSub.status === 'active') {
+      await prisma.subscription.update({
+        where: { userId },
+        data: {
+          status: 'active',
+          currentPeriodEnd: new Date((razorSub as any).current_end * 1000)
+        }
+      });
+      return true;
+    }
+    
+    await prisma.subscription.update({
+      where: { userId },
+      data: { status: razorSub.status }
+    });
+    
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 /**
