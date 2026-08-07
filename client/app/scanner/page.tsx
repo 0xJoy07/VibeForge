@@ -43,26 +43,26 @@ function ScannerContent() {
 
   return (
     <main className="min-h-screen bg-[#06110b] px-6 py-10 text-white">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+      <div className="mx-auto max-w-[1100px] space-y-6">
+        <div className="flex items-baseline justify-between">
           <div>
-            <h1 className="text-4xl font-black tracking-tight">Repository scanner</h1>
-            <p className="mt-2 text-zinc-400">Score a public GitHub repository across five engineering axes.</p>
+            <h1 className="text-[28px] font-bold">Repository scanner</h1>
+            <p className="mt-1 text-[14px] text-zinc-400">Score a public GitHub repository across five engineering axes.</p>
           </div>
-          <button onClick={() => { const demo = "https://github.com/OWASP/WebGoat"; setRepoUrl(demo); runScan(demo); }} className="rounded-lg border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-medium text-green-200 hover:bg-green-400/15">Try a demo</button>
+          <button onClick={() => { const demo = "https://github.com/OWASP/WebGoat"; setRepoUrl(demo); runScan(demo); }} className="rounded-md border border-white/20 px-4 py-1.5 text-sm font-medium hover:bg-white/5">Try a demo</button>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#0b1a11] p-4 sm:flex-row">
-          <input value={repoUrl} onChange={(event) => setRepoUrl(event.target.value)} placeholder="https://github.com/owner/repo" className="h-12 flex-1 rounded-md border border-white/10 bg-[#06110b] px-4 outline-none focus:border-green-300" />
-          <button onClick={() => runScan()} disabled={loading} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-green-400 px-5 font-bold text-black disabled:opacity-60">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Scan
+        <div className="relative flex h-[48px] w-full items-center rounded-lg border border-white/10 bg-[#06110b] p-1.5">
+          <input value={repoUrl} onChange={(event) => setRepoUrl(event.target.value)} placeholder="https://github.com/owner/repo" className="h-full flex-1 bg-transparent px-4 text-sm outline-none placeholder:text-zinc-500" />
+          <button onClick={() => runScan()} disabled={loading} className="inline-flex h-[36px] items-center justify-center gap-1.5 rounded-md bg-[#00c97a] px-[12px] font-semibold text-black disabled:opacity-60">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />} Scan
           </button>
         </div>
 
         {error && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-amber-100">{error}</div>}
         {result && (
-          <div className="space-y-8">
-            <section className="rounded-lg border border-white/10 bg-[#0b1a11] p-6"><ScoreRing scores={result.scores} grade={result.grade} /></section>
+          <div className="space-y-6">
+            <ScoreRing scores={result.scores} grade={result.grade} />
             <IssueTable issues={result.issues} />
           </div>
         )}

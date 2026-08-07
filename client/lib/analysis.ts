@@ -25,11 +25,11 @@ export type ScanResult = {
 };
 
 export const AXES: Array<{ key: keyof Scores; label: string; color: string }> = [
-  { key: "security", label: "Security", color: "#86efac" },
-  { key: "aiSlop", label: "AI slop", color: "#4ade80" },
-  { key: "codeQuality", label: "Code quality", color: "#22c55e" },
-  { key: "performance", label: "Performance", color: "#16a34a" },
-  { key: "structure", label: "Structure", color: "#059669" },
+  { key: "security", label: "Security", color: "#ef4444" },
+  { key: "aiSlop", label: "AI slop", color: "#f59e0b" },
+  { key: "codeQuality", label: "Code quality", color: "#3b82f6" },
+  { key: "performance", label: "Performance", color: "#a855f7" },
+  { key: "structure", label: "Structure", color: "#00c97a" },
 ];
 
 export const SYSTEM_PROMPT = `You are a senior engineer auditing a codebase. Analyze ALL provided files and return a JSON object (no markdown) with this exact shape:

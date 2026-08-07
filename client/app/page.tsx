@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Velaris from "@/components/ui/velaris";
 import { SquishyCard } from "@/components/ui/squishy-card";
+import Navbar from "@/components/Navbar";
 
 export default function LandingPage() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -22,49 +23,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white selection:bg-emerald-500/30 selection:text-emerald-200 font-sans relative">
       
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full h-[56px] border-b border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-md">
-        <div className="relative max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          {/* Left */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-white text-black">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <span className="font-semibold text-[15px] tracking-[-0.01em] text-white">VibeForge</span>
-          </Link>
-          
-          {/* Center */}
-          <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
-            <Link href="#features" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Features</Link>
-            <Link href="#scanner" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Scanner</Link>
-            <Link href="#editor" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Editor</Link>
-            <Link href="#cli" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">CLI</Link>
-            <Link href="/pricing" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:bg-white/[0.05] hover:text-white transition duration-150">Pricing</Link>
-          </nav>
-          
-          {/* Right */}
-          <div className="hidden md:flex items-center gap-3">
-            <a href="https://github.com/vibeforge/vibeforge" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-[6px] border border-white/[0.08] px-[10px] py-[6px] text-[13.5px] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
-              <Star className="h-3.5 w-3.5" />
-              <span className="tracking-[-0.01em]">Star</span>
-            </a>
-            
-            <div className="h-[14px] w-[1px] bg-white/[0.08]" />
-            
-            <Link href="/login" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
-              Login
-            </Link>
-            <Link href="/pricing" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
-              Get Started
-            </Link>
-          </div>
-          
-          {/* Mobile Menu */}
-          <button className="md:hidden text-white/[0.55] hover:text-white transition duration-150 p-1">
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center w-full relative">

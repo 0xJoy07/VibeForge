@@ -22,7 +22,7 @@ export default function ScoreRing({ scores, grade }: { scores: Scores; grade: Gr
   }));
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_1fr] lg:items-center">
+    <div className="grid gap-[48px] rounded-[16px] border border-white/10 bg-[#0b1a11] p-[32px] lg:grid-cols-[360px_1fr] lg:items-center">
       <div className="relative h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart cx="50%" cy="50%" innerRadius="28%" outerRadius="95%" data={data} startAngle={90} endAngle={-270} barSize={10}>
@@ -38,12 +38,12 @@ export default function ScoreRing({ scores, grade }: { scores: Scores; grade: Gr
       <div className="space-y-4">
         {AXES.map((axis) => (
           <div key={axis.key}>
-            <div className="mb-1 flex items-center justify-between text-sm">
-              <span className="font-medium text-zinc-200">{axis.label}</span>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-medium text-white">{axis.label}</span>
               <span className="text-zinc-400">{scores[axis.key]}/100</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#183522]">
-              <div className="h-full rounded-full" style={{ width: `${scores[axis.key]}%`, background: axis.color }} />
+            <div className="h-[4px] overflow-hidden rounded-[2px] bg-zinc-800">
+              <div className="h-full rounded-[2px]" style={{ width: `${scores[axis.key]}%`, background: axis.color }} />
             </div>
           </div>
         ))}
