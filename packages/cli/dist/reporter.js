@@ -1,8 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
-
-export function generateHtmlReport(results: any, outputPath: string): void {
-  const html = `
+export function generateHtmlReport(results, outputPath) {
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +47,7 @@ export function generateHtmlReport(results: any, outputPath: string): void {
     </div>
 
     <h2>Issues (${results.issues.length})</h2>
-    ${results.issues.map((i: any) => `
+    ${results.issues.map((i) => `
       <div class="issue">
         <div class="issue-header">
           <span class="badge ${i.severity}">${i.severity}</span>
@@ -63,41 +62,40 @@ export function generateHtmlReport(results: any, outputPath: string): void {
 </body>
 </html>
   `;
-  fs.writeFileSync(outputPath, html.trim());
+    fs.writeFileSync(outputPath, html.trim());
 }
-
-export function printTerminalSummary(results: any): void {
-  console.log("\n" + chalk.bold("VIBEFORGE SCAN RESULTS"));
-  console.log("======================");
-
-  const score = results.scores?.security ?? results.score ?? 0;
-  let gradeColor = chalk.green;
-  if (results.grade === "B") gradeColor = chalk.cyan;
-  if (results.grade === "C") gradeColor = chalk.yellow;
-  if (results.grade === "D") gradeColor = chalk.magenta;
-  if (results.grade === "F") gradeColor = chalk.red;
-
-  console.log(`\nGrade: ${gradeColor.bold(results.grade)}  (Score: ${score}/100)\n`);
-
-  if (results.scores) {
-    for (const [key, val] of Object.entries(results.scores)) {
-      const v = val as number;
-      const filled = Math.round(v / 5);
-      const empty = 20 - filled;
-      const bar = chalk.green("█".repeat(filled)) + chalk.gray("░".repeat(empty));
-      console.log(`${key.padEnd(14)} ${bar} ${v}`);
+export function printTerminalSummary(results) {
+    console.log("\n" + chalk.bold("VIBEFORGE SCAN RESULTS"));
+    console.log("======================");
+    const score = results.scores?.security ?? results.score ?? 0;
+    let gradeColor = chalk.green;
+    if (results.grade === "B")
+        gradeColor = chalk.cyan;
+    if (results.grade === "C")
+        gradeColor = chalk.yellow;
+    if (results.grade === "D")
+        gradeColor = chalk.magenta;
+    if (results.grade === "F")
+        gradeColor = chalk.red;
+    console.log(`\nGrade: ${gradeColor.bold(results.grade)}  (Score: ${score}/100)\n`);
+    if (results.scores) {
+        for (const [key, val] of Object.entries(results.scores)) {
+            const v = val;
+            const filled = Math.round(v / 5);
+            const empty = 20 - filled;
+            const bar = chalk.green("█".repeat(filled)) + chalk.gray("░".repeat(empty));
+            console.log(`${key.padEnd(14)} ${bar} ${v}`);
+        }
     }
-  }
-
-  console.log(`\nFound ${chalk.bold(results.issues.length)} issues.\n`);
-
-  for (const issue of results.issues) {
-    let severity = chalk.blue("INFO");
-    if (issue.severity === "warning") severity = chalk.yellow("WARN");
-    if (issue.severity === "critical") severity = chalk.red("CRIT");
-
-    const loc = issue.file ? ` (${issue.file}${issue.line ? `:${issue.line}` : ''})` : "";
-    console.log(`${severity} ${chalk.bold(issue.title)}${chalk.gray(loc)}`);
-    console.log(`  ${issue.description}\n`);
-  }
+    console.log(`\nFound ${chalk.bold(results.issues.length)} issues.\n`);
+    for (const issue of results.issues) {
+        let severity = chalk.blue("INFO");
+        if (issue.severity === "warning")
+            severity = chalk.yellow("WARN");
+        if (issue.severity === "critical")
+            severity = chalk.red("CRIT");
+        const loc = issue.file ? ` (${issue.file}${issue.line ? `:${issue.line}` : ''})` : "";
+        console.log(`${severity} ${chalk.bold(issue.title)}${chalk.gray(loc)}`);
+        console.log(`  ${issue.description}\n`);
+    }
 }

@@ -1,53 +1,110 @@
-const SKIP_PARTS = new Set(["node_modules", ".git", "dist", "build", ".next", "coverage", "vendor"]);
-const CODE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".java", ".rs", ".cs", ".rb", ".php"];
-const BINARY_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico", ".pdf", ".zip", ".lock"];
+const SKIP_DIRS = new Set([
+  "node_modules", ".git", "dist", "build", ".next", "coverage",
+  "vendor", ".turbo", ".cache", "out", "__pycache__",
+]);
 
-export function parseGitHubUrl(repoUrl: string) {
-  const parsed = new URL(repoUrl);
-  if (!["github.com", "www.github.com"].includes(parsed.hostname)) throw new Error("Only github.com repository URLs are supported.");
-  const [owner, repo] = parsed.pathname.replace(/^\/|\/$/g, "").split("/");
-  if (!owner || !repo) throw new Error("Expected a GitHub URL shaped like https://github.com/owner/repo.");
-  return { owner, repo: repo.replace(/\.git$/, "") };
+const SKIP_EXTENSIONS = new Set([
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico",
+  ".woff", ".woff2", ".ttf", ".eot", ".otf",
+  ".pdf", ".zip", ".tar", ".gz", ".mp4", ".mp3",
+]);
+
+const SKIP_PATTERNS = [
+  "package-lock.json", "yarn.lock", "pnpm-lock.yaml",
+  ".lock", ".min.js", ".min.css",
+];
+
+const HIGH_PRIORITY_DIRS = ["src/", "lib/", "app/", "pages/", "components/", "server/", "api/"];
+const CONFIG_PATTERNS = [".config.", ".env.example", "tsconfig", "vite.", "next.", "tailwind."];
+
+export interface RepoFile {
+  path: string;
+  content: string;
 }
 
-function shouldSkip(path: string) {
-  const parts = path.split("/");
+function parseGitHubUrl(repoUrl: string): { owner: string; repo: string } {
+  const match = repoUrl.match(/github\.com\/([^/]+)\/([^/?#]+)/);
+  if (!match) throw new Error("Invalid GitHub URL. Expected: https://github.com/owner/repo");
+  const owner = match[1]!;
+  const repo = match[2]!.replace(/\.git$/, "");
+  return { owner, repo };
+}
+
+function shouldSkip(path: string): boolean {
   const lower = path.toLowerCase();
-  if (parts.some((part) => SKIP_PARTS.has(part))) return true;
-  if (lower.includes("package-lock.json") || lower.includes("pnpm-lock.yaml") || lower.includes("yarn.lock")) return true;
-  return BINARY_EXTENSIONS.some((extension) => lower.endsWith(extension));
+  const parts = path.split("/");
+  if (parts.some((p) => SKIP_DIRS.has(p))) return true;
+  if (SKIP_PATTERNS.some((pat) => lower.includes(pat))) return true;
+  const ext = lower.includes(".") ? "." + lower.split(".").pop()! : "";
+  return SKIP_EXTENSIONS.has(ext);
 }
 
-function priority(path: string) {
+function filePriority(path: string): number {
+  const lower = path.toLowerCase();
   let score = 0;
-  if (path.startsWith("src/")) score += 100;
-  if (path.startsWith("lib/")) score += 90;
-  if (CODE_EXTENSIONS.some((extension) => path.endsWith(extension))) score += 40;
-  if (path.includes("test") || path.includes("spec")) score -= 10;
+  if (HIGH_PRIORITY_DIRS.some((d) => lower.startsWith(d))) score += 60;
+  if (CONFIG_PATTERNS.some((p) => lower.includes(p))) score += 30;
+  if (path.includes("test") || path.includes("spec") || path.includes("__test")) score -= 20;
+  score -= Math.min(path.split("/").length * 2, 20);
   return score;
 }
 
-export async function fetchRepoFiles(repoUrl: string) {
+function githubHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "VibeForge",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  const token = process.env.GITHUB_TOKEN;
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return headers;
+}
+
+export async function fetchRepoFiles(repoUrl: string): Promise<RepoFile[]> {
   const { owner, repo } = parseGitHubUrl(repoUrl);
-  const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`;
-  const treeResponse = await fetch(treeUrl, { headers: { Accept: "application/vnd.github+json", "User-Agent": "VibeForge" } });
-  if (!treeResponse.ok) throw new Error(`GitHub tree request failed with ${treeResponse.status}.`);
-  const treeBody = (await treeResponse.json()) as { tree?: Array<{ path: string; type: string; size?: number }> };
+
+  const treeRes = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`,
+    { headers: githubHeaders() }
+  );
+
+  if (treeRes.status === 404) {
+    throw Object.assign(new Error("Repository not found or is private."), { status: 404 });
+  }
+  if (treeRes.status === 403 || treeRes.status === 429) {
+    throw Object.assign(new Error("GitHub API rate limit exceeded. Add a GITHUB_TOKEN to increase the limit."), { status: 403 });
+  }
+  if (!treeRes.ok) {
+    throw new Error(`GitHub API error: ${treeRes.status}`);
+  }
+
+  const treeBody = (await treeRes.json()) as { tree?: Array<{ type: string; path?: string; size?: number }> };
+
   const paths = (treeBody.tree ?? [])
-    .filter((item) => item.type === "blob" && item.path && !shouldSkip(item.path) && (item.size ?? 0) < 120_000)
-    .sort((a, b) => priority(b.path) - priority(a.path))
-    .slice(0, 30)
-    .map((item) => item.path);
+    .filter((item) => item.type === "blob" && item.path && !shouldSkip(item.path) && (item.size ?? 0) < 100_000)
+    .sort((a, b) => filePriority(b.path!) - filePriority(a.path!))
+    .slice(0, 5)
+    .map((item) => item.path!);
 
-  const files = await Promise.all(paths.map(async (path) => {
-    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${path}`;
-    const response = await fetch(rawUrl, { headers: { "User-Agent": "VibeForge" } });
-    if (!response.ok) return null;
-    return { path, content: await response.text() };
-  }));
-  return files.filter((file): file is { path: string; content: string } => Boolean(file));
+  const results = await Promise.allSettled(
+    paths.map(async (path) => {
+      const res = await fetch(
+        `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${path}`,
+        { headers: { "User-Agent": "VibeForge" } }
+      );
+      if (!res.ok) return null;
+      return { path, content: await res.text() } satisfies RepoFile;
+    })
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<RepoFile> => r.status === "fulfilled" && r.value !== null)
+    .map((r) => r.value);
 }
 
-export function buildFilesPrompt(files: Array<{ path: string; content: string }>) {
-  return files.map((file) => `FILE: ${file.path}\n\`\`\`\n${file.content.slice(0, 18_000)}\n\`\`\``).join("\n\n");
+export function buildFilesPrompt(files: RepoFile[]): string {
+  return files
+    .map((f) => `FILE: ${f.path}\n\`\`\`\n${f.content.slice(0, 2000)}\n\`\`\``)
+    .join("\n\n");
 }
+
