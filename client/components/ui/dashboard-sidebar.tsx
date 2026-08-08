@@ -18,6 +18,7 @@ import {
   Code
 } from 'lucide-react';
 import Link from 'next/link';
+import { LogoutButton } from '../LogoutButton';
 
 export type NavItemData = {
   id: string;
@@ -37,28 +38,27 @@ export type NavGroupData = {
 const navGroups: NavGroupData[] = [
   {
     items: [
-      { id: 'search', title: 'Search', icon: Search, shortcut: '⌘K', href: '#' },
+      { id: 'search', title: 'Scanner', icon: Search, shortcut: '⌘K', href: '/scanner' },
       { id: 'home', title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-      { id: 'scans', title: 'Scan History', icon: Activity, href: '/dashboard/scans' },
+      { id: 'scans', title: 'Scan History', icon: Activity, href: '/dashboard/history' },
     ]
   },
   {
     heading: 'Workspace',
     items: [
-      { id: 'billing', title: 'Billing & Plan', icon: CreditCard, href: '/pricing' },
+      { id: 'billing', title: 'Billing & Plan', icon: CreditCard, href: '/billing' },
     ]
   },
   {
     heading: 'Developers',
     items: [
-      { id: 'cli', title: 'CLI Tokens', icon: Terminal, href: '/dashboard/cli' },
+      { id: 'cli', title: 'CLI Tokens', icon: Terminal, href: '/dashboard/cli-tokens' },
     ]
   }
 ];
 
 const bottomItems: NavItemData[] = [
-  { id: 'settings', title: 'Settings', icon: Settings, href: '/dashboard/settings' },
-  { id: 'logout', title: 'Log out', icon: LogOut, href: '/api/auth/logout' },
+  { id: 'settings', title: 'Settings', icon: Settings, href: '/settings' },
 ];
 
 function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect?: (ws: string) => void }) {
@@ -74,7 +74,7 @@ function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between px-2 py-2 mb-4 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors select-none group"
       >
-        <div className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-8 h-8 rounded-[6px] bg-[#00c97a] text-black flex items-center justify-center font-bold text-[13px] shadow-sm">
             <Code className="w-4 h-4" />
           </div>
@@ -82,7 +82,7 @@ function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect
             <span className="text-[13px] font-medium leading-none mb-1 text-foreground truncate max-w-[120px]">{current}</span>
             <span className="text-[11px] text-muted-foreground leading-none">VibeForge</span>
           </div>
-        </div>
+        </Link>
         <ChevronDown className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground/70 transition-colors shrink-0" strokeWidth={1.5} />
       </div>
 
@@ -134,19 +134,19 @@ function NavItem({
     <div className="flex flex-col w-full">
       <Link 
         href={item.href}
-        className={`group flex items-center justify-between px-2.5 py-[7px] rounded-[6px] cursor-pointer transition-all duration-200 select-none
+        className={`group flex items-center justify-between py-[7px] rounded-r-[6px] cursor-pointer transition-colors duration-150 select-none border-l-2
           ${isActive 
-            ? 'bg-black/5 dark:bg-white/10 text-foreground font-medium' 
-            : 'text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground/90'
+            ? 'bg-green-500/10 text-green-400 border-green-500 font-medium' 
+            : 'text-muted-foreground border-transparent hover:bg-white/5 hover:text-white'
           }
         `}
-        style={{ paddingLeft: `${level * 12 + 10}px` }}
+        style={{ paddingLeft: `${level * 12 + 10}px`, paddingRight: '10px' }}
         onClick={handleClick}
       >
         <div className="flex items-center gap-2.5">
           <item.icon 
             className={`w-[16px] h-[16px] transition-colors
-              ${isActive ? 'text-[#00c97a]' : 'text-muted-foreground/70 group-hover:text-foreground/70'}
+              ${isActive ? 'text-green-400' : 'text-muted-foreground/70 group-hover:text-white'}
             `} 
             strokeWidth={1.5} 
           />
@@ -252,6 +252,7 @@ export function SidebarNav({
             onSelect={handleSelect} 
           />
         ))}
+        <LogoutButton />
       </div>
     </div>
   );

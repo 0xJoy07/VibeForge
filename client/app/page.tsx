@@ -16,7 +16,10 @@ export default function LandingPage() {
   const router = useRouter();
 
   function scan(repo = repoUrl) {
-    if (!repo.trim()) return;
+    if (!repo.trim()) {
+      router.push("/scanner");
+      return;
+    }
     router.push(`/scanner?repo=${encodeURIComponent(repo.trim())}`);
   }
 
@@ -259,7 +262,7 @@ export default function LandingPage() {
               />
               <SquishyCard 
                 tier="Pro"
-                price="₹49"
+                price="₹9"
                 description="For professional developers building production applications."
                 features={[
                   { name: "Unlimited scans", included: true },
@@ -292,12 +295,12 @@ export default function LandingPage() {
               Join thousands of developers shipping better, more secure software with VibeForge.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-8 py-4 font-bold text-black transition-colors">
+              <Link href="/scanner" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-8 py-4 font-bold text-black transition-colors">
                 Scan a repo
-              </button>
-              <button className="rounded-[6px] bg-white/10 hover:bg-white/20 px-8 py-4 font-bold text-white transition-colors">
+              </Link>
+              <Link href="/download" className="rounded-[6px] bg-white/10 hover:bg-white/20 px-8 py-4 font-bold text-white transition-colors">
                 Install CLI
-              </button>
+              </Link>
             </div>
           </div>
         </section>

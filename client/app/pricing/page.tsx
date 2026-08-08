@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Zap, Loader2, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { BackNav } from "@/components/BackNav";
 
 declare global {
   interface Window {
@@ -90,6 +91,7 @@ export default function PricingPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isPro, setIsPro] = useState(false);
+  const [user, setUser] = useState<{ email?: string; user_metadata?: { name?: string } } | null>(null);
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
@@ -99,6 +101,7 @@ export default function PricingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setCheckingStatus(false); return; }
       setIsLoggedIn(true);
+      setUser(user);
       try {
         const res = await fetch("/api/payments/status");
         if (res.ok) {
@@ -126,11 +129,29 @@ export default function PricingPage() {
         key: data.keyId,
         subscription_id: data.subscriptionId,
         name: "VibeForge",
-        description: "Pro Monthly — Unlimited Scans + CLI",
+        description: "Pro Monthly Subscription",
         image: "/favicon.ico",
-        theme: { color: "#00c97a" },
-        handler: () => { router.push("/dashboard?subscribed=true"); },
-        modal: { ondismiss: () => setLoading(false) },
+        theme: { color: "#16a34a" },
+        prefill: { email: user?.email, name: user?.user_metadata?.name },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        handler: async function(response: any) { 
+          const verifyRes = await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+          if (verifyRes.ok) {
+            window.location.href = '/dashboard?subscribed=true'; 
+          } else {
+            alert("Payment verification failed. Please contact support.");
+            setLoading(false);
+          }
+        },
+        modal: { ondismiss: function() { setLoading(false); } }
       });
       rzp.open();
     } catch (err) {
@@ -166,29 +187,13 @@ export default function PricingPage() {
 
       {/* Test-mode banner */}
       <div className="relative z-50 w-full bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-xs font-medium text-amber-300">
-        🧪 Test mode — use card <span className="font-mono font-bold">4111 1111 1111 1111</span>, any future expiry, any CVV
+        🧪 Test mode — use card <span className="font-mono font-bold">5267 3181 8797 5449</span>, expiry <span className="font-mono font-bold">12/29</span>, CVV <span className="font-mono font-bold">123</span>, OTP <span className="font-mono font-bold">1234</span>
       </div>
 
       {/* Navbar */}
-      <header className="sticky top-0 z-40 w-full h-14 border-b border-white/[0.06] bg-black/80 backdrop-blur-md">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-            <span className="font-bold text-white">VibeForge</span>
-          </Link>
-          <nav className="flex items-center gap-6 text-sm text-zinc-400">
-            <Link href="/scanner" className="hover:text-white transition-colors">Scanner</Link>
-            <Link href="/pricing" className="text-white font-semibold">Pricing</Link>
-            <Link href="/login" className="rounded-lg border border-white/10 px-4 py-1.5 text-white hover:border-white/30 transition-colors">
-              Sign in
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <div className="relative z-40 bg-black">
+        <BackNav toDashboard={false} />
+      </div>
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-6 py-24">
         {/* Hero */}
@@ -230,7 +235,7 @@ export default function PricingPage() {
 
           <TierCard
             name="Pro"
-            price="₹49"
+            price="₹499"
             description="For professional developers shipping production-grade code."
             featured
             features={[
@@ -246,7 +251,7 @@ export default function PricingPage() {
 
           <TierCard
             name="Team"
-            price="₹149"
+            price="₹1499"
             description="Everything your team needs with shared dashboards and seats."
             badge="Coming soon"
             dim

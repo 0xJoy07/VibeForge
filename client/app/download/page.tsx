@@ -2,6 +2,8 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
+import { BackNav } from "@/components/BackNav";
 import TerminalMockup from "@/components/TerminalMockup";
 
 const flags = [
@@ -21,10 +23,12 @@ export default function DownloadPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#06110b] px-6 py-12 text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <section>
-          <h1 className="text-5xl font-black tracking-tight sm:text-6xl">Scan your codebase in 60 seconds</h1>
+    <div className="min-h-screen bg-[#06110b] text-white flex flex-col">
+      <BackNav toDashboard={true} />
+      <main className="flex-1 px-6 py-12">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <section className="relative">
+            <h1 className="text-5xl font-black tracking-tight sm:text-6xl mt-4">Scan your codebase in 60 seconds</h1>
           <p className="mt-5 max-w-xl text-lg text-zinc-400">Run VibeForge locally with direct Anthropic SDK calls, colored terminal output, HTML reports, and optional fixes.</p>
           <button onClick={copy} className="mt-8 inline-flex items-center gap-3 rounded-lg border border-white/10 bg-[#0b1a11] px-5 py-4 font-mono text-green-300 hover:bg-[#102418]">
             {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />} {command}
@@ -37,9 +41,15 @@ export default function DownloadPage() {
               </div>
             ))}
           </div>
+          <div className="mt-8 flex flex-wrap gap-4 text-sm">
+            <Link href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-[#00c97a] hover:underline">Get API key</Link>
+            <span className="text-zinc-600">•</span>
+            <Link href="/pricing" className="text-[#00c97a] hover:underline">Pricing</Link>
+          </div>
         </section>
         <TerminalMockup />
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { BackNav } from "@/components/BackNav";
 
 function GoogleIcon() {
   return (
@@ -46,33 +47,31 @@ export default function LoginPage() {
     const supabase = createClient();
     const origin = window.location.origin;
 
+    const next = searchParams.get("next") ?? "/dashboard";
+
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
     // Provider redirects the browser — no need to reset loading state
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-4">
-      {/* Subtle grid background */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:32px_32px]" />
+    <div className="relative flex min-h-screen flex-col items-center bg-black">
+      <div className="w-full relative z-50">
+        <BackNav toDashboard={false} />
+      </div>
+      
+      <div className="flex-1 flex flex-col items-center justify-center w-full px-4 relative">
+        {/* Subtle grid background */}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:32px_32px]" />
 
       {/* Glow orb */}
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-[#00c97a]/10 blur-[120px]" />
 
       <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center">
-        {/* Logo */}
-        <Link href="/" className="mb-8 flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-lg transition-transform group-hover:scale-105">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white">VibeForge</span>
-        </Link>
 
         {/* Card */}
         <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl backdrop-blur-sm">
@@ -141,14 +140,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-        {/* Back link */}
-        <Link
-          href="/"
-          className="mt-6 text-sm text-zinc-600 transition-colors hover:text-zinc-400"
-        >
-          ← Back to home
-        </Link>
+      </div>
       </div>
     </div>
   );

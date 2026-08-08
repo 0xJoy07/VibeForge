@@ -93,3 +93,11 @@ export function getFingerprint(request: Request): string {
   const ua = request.headers.get("user-agent") ?? "unknown";
   return createHash("sha256").update(`${ip}::${ua}`).digest("hex");
 }
+
+export function getFingerprintFromHeaders(headers: Headers): string {
+  const ip =
+    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const ua = headers.get("user-agent") ?? "unknown";
+  return createHash("sha256").update(`${ip}::${ua}`).digest("hex");
+}

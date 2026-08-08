@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function Navbar({ activeItem }: { activeItem?: string }) {
+import { usePathname } from "next/navigation";
+
+export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createClient();
@@ -49,19 +52,22 @@ export default function Navbar({ activeItem }: { activeItem?: string }) {
         
         {/* Center */}
         <nav className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={`rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] transition duration-150 ${
-                activeItem === link.label
-                  ? "bg-white/[0.05] text-white"
-                  : "text-white/[0.55] hover:bg-white/[0.05] hover:text-white"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = link.href.startsWith('/#') ? false : pathname === link.href;
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] transition duration-150 ${
+                  isActive
+                    ? "bg-white/[0.05] text-white"
+                    : "text-white/[0.55] hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
         
         {/* Right */}
@@ -85,7 +91,7 @@ export default function Navbar({ activeItem }: { activeItem?: string }) {
               <Link href="/login" className="rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
                 Login
               </Link>
-              <Link href="/pricing" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
+              <Link href="/login" className="rounded-[6px] bg-[#00c97a] hover:bg-[#00b06b] px-[12px] py-[6px] text-[13.5px] font-semibold tracking-[-0.01em] text-black transition duration-150">
                 Get Started
               </Link>
             </>

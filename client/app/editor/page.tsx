@@ -1,9 +1,9 @@
 "use client";
 
-import { Loader2, Terminal, CheckCircle2, Code2 } from "lucide-react";
+import { Loader2, Terminal, CheckCircle2, Code2, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { BackNav } from "@/components/BackNav";
 import Editor from "@monaco-editor/react";
-import Navbar from "@/components/Navbar";
 import ScoreRingEditor from "@/components/ScoreRingEditor";
 import EditorIssueList from "@/components/EditorIssueList";
 import SkeletonReview from "@/components/SkeletonReview";
@@ -56,9 +56,9 @@ export default function EditorPage() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#06110b] text-white">
-      <Navbar activeItem="Editor" />
+      <BackNav toDashboard={true} />
 
-      <main className="flex h-[calc(100vh-56px)] flex-col md:flex-row">
+      <main className="flex h-[calc(100vh-40px)] flex-col md:flex-row">
         {/* Left Panel: Editor */}
         <section className="flex h-[400px] w-full shrink-0 flex-col border-white/10 md:h-full md:w-1/2 md:border-r">
           {/* Header Bar */}

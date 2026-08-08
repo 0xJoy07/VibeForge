@@ -17,8 +17,9 @@ model User {
   supabaseId   String        @unique
   createdAt    DateTime      @default(now())
   subscription Subscription?
-  scans        ScanHistory[]
-  cliTokens    CliToken[]
+  scans          ScanHistory[]
+  cliTokens      CliToken[]
+  activeSessions ActiveSession[]
 }
 
 model Subscription {
@@ -63,4 +64,25 @@ model CliToken {
   expiresAt  DateTime
   lastUsedAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+model BlacklistedToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model ActiveSession {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo   String
+  sessionToken String   @unique
+  createdAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+
+  @@index([userId])
 }

@@ -2,9 +2,9 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { loginCommand } from "./commands/login.js";
-import { scanCommand } from "./commands/scan.js";
-import { clearToken, getStoredToken, validateTokenWithServer } from "./auth.js";
+import { loginCommand } from "./commands/login";
+import { scanCommand } from "./commands/scan";
+import { clearToken, getStoredToken, validateTokenWithServer } from "./auth";
 
 const API_URL = process.env.VIBEFORGE_API_URL || "http://localhost:3000";
 

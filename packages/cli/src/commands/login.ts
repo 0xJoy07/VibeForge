@@ -2,7 +2,7 @@ import http from "http";
 import crypto from "crypto";
 import open from "open";
 import chalk from "chalk";
-import { saveToken } from "../auth.js";
+import { saveToken } from "../auth";
 
 export async function loginCommand(apiUrl: string): Promise<void> {
   const state = crypto.randomBytes(16).toString("hex");

@@ -1,8 +1,10 @@
 "use client";
 
-import { Loader2, Play } from "lucide-react";
+import { Loader2, Play, ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { BackNav } from "@/components/BackNav";
 import IssueTable from "@/components/IssueTable";
 import ScoreRing from "@/components/ScoreRing";
 import { demoResult, type ScanResult } from "@/lib/analysis";
@@ -42,8 +44,10 @@ function ScannerContent() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#06110b] px-6 py-10 text-white">
-      <div className="mx-auto max-w-[1100px] space-y-6">
+    <div className="min-h-screen bg-[#06110b] text-white flex flex-col">
+      <BackNav toDashboard={true} />
+      <main className="flex-1 px-6 py-10">
+        <div className="mx-auto max-w-[1100px] space-y-6">
         <div className="flex items-baseline justify-between">
           <div>
             <h1 className="text-[28px] font-bold">Repository scanner</h1>
@@ -67,7 +71,8 @@ function ScannerContent() {
           </div>
         )}
       </div>
-    </main>
+      </main>
+    </div>
   );
 }
 export default function ScannerPage() {

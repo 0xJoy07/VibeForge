@@ -39,9 +39,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await syncUserToPrisma(data.user);
+    const dbUser = await syncUserToPrisma(data.user);
+    
+    if (data.session?.access_token) {
+      const { getDeviceInfo, registerSession } = await import('@/lib/device');
+      const encoder = new TextEncoder();
+      const tokenData = encoder.encode(data.session.access_token);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', tokenData);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashedToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      const deviceInfo = getDeviceInfo(request);
+      await registerSession(dbUser.id, hashedToken, deviceInfo);
+    }
   } catch (e) {
-    console.error('syncUserToPrisma failed:', e);
+    console.error('syncUserToPrisma or session registration failed:', e);
   }
 
   return NextResponse.redirect(`${origin}${next}`);

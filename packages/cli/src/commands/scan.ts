@@ -3,9 +3,9 @@ import path from "path";
 import { globSync } from "glob";
 import ora from "ora";
 import chalk from "chalk";
-import { getStoredToken, validateTokenWithServer } from "../auth.js";
-import { generateHtmlReport, printTerminalSummary } from "../reporter.js";
-import { applyFixes } from "../fixer.js";
+import { getStoredToken, validateTokenWithServer } from "../auth";
+import { generateHtmlReport, printTerminalSummary } from "../reporter";
+import { applyFixes } from "../fixer";
 
 const SKIP_DIRS = ["node_modules", ".git", "dist", "build", ".next", "coverage", "vendor", ".turbo", ".cache", "out", "__pycache__"];
 const SKIP_EXTS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".eot", ".otf", ".pdf", ".zip", ".tar", ".gz", ".mp4", ".mp3"];
