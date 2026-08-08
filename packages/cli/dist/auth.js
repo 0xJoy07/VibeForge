@@ -1,13 +1,22 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
-const AUTH_DIR = path.join(os.homedir(), ".vibeforge");
-const AUTH_FILE = path.join(AUTH_DIR, "auth.json");
-export function getStoredToken() {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getStoredToken = getStoredToken;
+exports.saveToken = saveToken;
+exports.clearToken = clearToken;
+exports.validateTokenWithServer = validateTokenWithServer;
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const os_1 = __importDefault(require("os"));
+const AUTH_DIR = path_1.default.join(os_1.default.homedir(), ".vibeforge");
+const AUTH_FILE = path_1.default.join(AUTH_DIR, "auth.json");
+function getStoredToken() {
     try {
-        if (!fs.existsSync(AUTH_FILE))
+        if (!fs_1.default.existsSync(AUTH_FILE))
             return null;
-        const data = JSON.parse(fs.readFileSync(AUTH_FILE, "utf-8"));
+        const data = JSON.parse(fs_1.default.readFileSync(AUTH_FILE, "utf-8"));
         if (!data.token || !data.savedAt)
             return null;
         // Check if token is older than 30 days
@@ -22,18 +31,18 @@ export function getStoredToken() {
         return null;
     }
 }
-export function saveToken(token) {
-    if (!fs.existsSync(AUTH_DIR)) {
-        fs.mkdirSync(AUTH_DIR, { recursive: true });
+function saveToken(token) {
+    if (!fs_1.default.existsSync(AUTH_DIR)) {
+        fs_1.default.mkdirSync(AUTH_DIR, { recursive: true });
     }
-    fs.writeFileSync(AUTH_FILE, JSON.stringify({ token, savedAt: Date.now() }));
+    fs_1.default.writeFileSync(AUTH_FILE, JSON.stringify({ token, savedAt: Date.now() }));
 }
-export function clearToken() {
-    if (fs.existsSync(AUTH_FILE)) {
-        fs.unlinkSync(AUTH_FILE);
+function clearToken() {
+    if (fs_1.default.existsSync(AUTH_FILE)) {
+        fs_1.default.unlinkSync(AUTH_FILE);
     }
 }
-export async function validateTokenWithServer(apiUrl, token) {
+async function validateTokenWithServer(apiUrl, token) {
     try {
         const res = await fetch(`${apiUrl}/api/cli/validate`, {
             headers: { Authorization: `Bearer ${token}` },

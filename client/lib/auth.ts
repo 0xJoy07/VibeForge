@@ -87,17 +87,11 @@ export async function isPro(userId: string): Promise<boolean> {
  * Accepts a Next.js Request object (from Route Handlers or middleware).
  */
 export function getFingerprint(request: Request): string {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
-  const ua = request.headers.get("user-agent") ?? "unknown";
-  return createHash("sha256").update(`${ip}::${ua}`).digest("hex");
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? request.headers.get('x-real-ip') ?? '127.0.0.1';
+  return createHash("sha256").update(ip).digest("hex");
 }
 
 export function getFingerprintFromHeaders(headers: Headers): string {
-  const ip =
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
-  const ua = headers.get("user-agent") ?? "unknown";
-  return createHash("sha256").update(`${ip}::${ua}`).digest("hex");
+  const ip = headers.get('x-forwarded-for')?.split(',')[0].trim() ?? headers.get('x-real-ip') ?? '127.0.0.1';
+  return createHash("sha256").update(ip).digest("hex");
 }

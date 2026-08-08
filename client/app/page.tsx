@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Velaris from "@/components/ui/velaris";
-import { SquishyCard } from "@/components/ui/squishy-card";
+import PricingCard from "@/components/PricingCard";
 import Navbar from "@/components/Navbar";
 
 export default function LandingPage() {
@@ -46,18 +46,18 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <h1 className="max-w-5xl text-5xl font-bold font-serif tracking-tight text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1] drop-shadow-xl">
+            <h1 className="max-w-5xl text-5xl font-bold font-serif tracking-tight text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1] drop-shadow-xl animate-[fadeInUp_0.6s_ease_forwards] opacity-0" style={{ animationDelay: '100ms' }}>
               Analyze your repo. <br className="hidden sm:block" />
               <span className="text-emerald-400 font-serif italic drop-shadow-md">
                 Elevate your code.
               </span>
             </h1>
             
-            <p className="max-w-2xl text-lg text-zinc-300 sm:text-xl font-light tracking-wide backdrop-blur-sm drop-shadow-md">
+            <p className="max-w-2xl text-lg text-zinc-300 sm:text-xl font-light tracking-wide backdrop-blur-sm drop-shadow-md animate-[fadeInUp_0.6s_ease_forwards] opacity-0" style={{ animationDelay: '200ms' }}>
               Connect your Git repository and let AI instantly review your codebase for vulnerabilities, performance, and architecture best practices.
             </p>
             
-            <div className="mt-8 flex w-full max-w-xl flex-col gap-4 sm:flex-row backdrop-blur-sm">
+            <div className="mt-8 flex w-full max-w-xl flex-col gap-4 sm:flex-row backdrop-blur-sm animate-[fadeInUp_0.6s_ease_forwards] opacity-0" style={{ animationDelay: '300ms' }}>
               <div className="relative flex-1 group">
                 <GitBranch className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-emerald-400 transition-colors" />
                 <input 
@@ -96,19 +96,19 @@ export default function LandingPage() {
               {/* Connectors for desktop */}
               <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-[1px] bg-white/10 z-0"></div>
               
-              <div className="flex flex-col items-center text-center gap-4 relative z-10">
+              <div className="flex flex-col items-center text-center gap-4 relative z-10 p-6 rounded-2xl border border-transparent hover:border-emerald-500/20 bg-zinc-950 hover:bg-zinc-900 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(22,163,74,0.15)]">
                 <div className="h-16 w-16 rounded-full bg-black border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xl mb-2">01</div>
                 <h3 className="text-xl font-bold text-white font-serif">Paste your GitHub URL</h3>
                 <p className="text-zinc-400 leading-relaxed">Drop any public repo link into the scanner. No setup, no config.</p>
               </div>
               
-              <div className="flex flex-col items-center text-center gap-4 relative z-10">
+              <div className="flex flex-col items-center text-center gap-4 relative z-10 p-6 rounded-2xl border border-transparent hover:border-emerald-500/20 bg-zinc-950 hover:bg-zinc-900 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(22,163,74,0.15)]">
                 <div className="h-16 w-16 rounded-full bg-black border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xl mb-2">02</div>
                 <h3 className="text-xl font-bold text-white font-serif">AI scans your codebase</h3>
                 <p className="text-zinc-400 leading-relaxed">Claude reads up to 30 files and flags security issues, AI slop, dead code, and performance problems.</p>
               </div>
               
-              <div className="flex flex-col items-center text-center gap-4 relative z-10">
+              <div className="flex flex-col items-center text-center gap-4 relative z-10 p-6 rounded-2xl border border-transparent hover:border-emerald-500/20 bg-zinc-950 hover:bg-zinc-900 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(22,163,74,0.15)]">
                 <div className="h-16 w-16 rounded-full bg-black border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xl mb-2">03</div>
                 <h3 className="text-xl font-bold text-white font-serif">Get your score + fixes</h3>
                 <p className="text-zinc-400 leading-relaxed">See a letter grade, axis breakdown, and one-click fixes for every flagged issue.</p>
@@ -248,8 +248,8 @@ export default function LandingPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              <SquishyCard 
-                tier="Free"
+              <PricingCard 
+                name="Free"
                 price="₹0"
                 description="Perfect for individual developers and small open-source projects."
                 features={[
@@ -258,11 +258,12 @@ export default function LandingPage() {
                   { name: "No CLI access", included: false },
                   { name: "No scan history", included: false }
                 ]}
-                buttonText="Start for free"
+                cta="Start for free"
+                ctaHref="/scanner"
               />
-              <SquishyCard 
-                tier="Pro"
-                price="₹9"
+              <PricingCard 
+                name="Pro"
+                price="₹499"
                 description="For professional developers building production applications."
                 features={[
                   { name: "Unlimited scans", included: true },
@@ -270,8 +271,9 @@ export default function LandingPage() {
                   { name: "Report exports", included: true },
                   { name: "Full scan history", included: true }
                 ]}
-                buttonText="Subscribe to Pro"
-                isPopular={true}
+                cta="Get Pro →"
+                ctaHref="/pricing"
+                featured={true}
               />
             </div>
             

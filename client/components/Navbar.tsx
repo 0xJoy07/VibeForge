@@ -58,10 +58,10 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] transition duration-150 ${
+                className={`relative rounded-[6px] px-[10px] py-[6px] text-[13.5px] tracking-[-0.01em] transition duration-150 after:content-[''] after:absolute after:-bottom-[14px] after:left-0 after:w-full after:h-[2px] after:bg-[#00c97a] after:transition-transform after:duration-300 ${
                   isActive
-                    ? "bg-white/[0.05] text-white"
-                    : "text-white/[0.55] hover:bg-white/[0.05] hover:text-white"
+                    ? "text-white after:scale-x-100"
+                    : "text-white/[0.55] hover:bg-white/[0.05] hover:text-white after:scale-x-0"
                 }`}
               >
                 {link.label}

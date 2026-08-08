@@ -24,8 +24,7 @@ export default async function BillingPage() {
   const headersList = await headers();
   const fingerprint = getFingerprintFromHeaders(headersList);
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date().toISOString().split('T')[0];
 
   const quota = await prisma.dailyQuota.findFirst({
     where: {
@@ -43,7 +42,7 @@ export default async function BillingPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#06110b] text-white">
       <BackNav toDashboard={true} />
       <div className="container max-w-5xl py-10 px-6 mx-auto flex-1">
         <div className="mb-10">

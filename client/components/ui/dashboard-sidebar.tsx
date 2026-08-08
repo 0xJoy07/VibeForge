@@ -136,11 +136,11 @@ function NavItem({
         href={item.href}
         className={`group flex items-center justify-between py-[7px] rounded-r-[6px] cursor-pointer transition-colors duration-150 select-none border-l-2
           ${isActive 
-            ? 'bg-green-500/10 text-green-400 border-green-500 font-medium' 
+            ? 'border-green-500 bg-green-500/10 text-green-400 pl-3' 
             : 'text-muted-foreground border-transparent hover:bg-white/5 hover:text-white'
           }
         `}
-        style={{ paddingLeft: `${level * 12 + 10}px`, paddingRight: '10px' }}
+        style={{ paddingLeft: isActive ? undefined : `${level * 12 + 10}px`, paddingRight: '10px' }}
         onClick={handleClick}
       >
         <div className="flex items-center gap-2.5">
@@ -207,17 +207,20 @@ export function SidebarNav({
   activeId,
   onSelect,
   activeWorkspace,
-  onWorkspaceSelect
+  onWorkspaceSelect,
+  user
 }: { 
   className?: string,
   activeId?: string,
   onSelect?: (id: string) => void,
   activeWorkspace?: string,
-  onWorkspaceSelect?: (ws: string) => void
+  onWorkspaceSelect?: (ws: string) => void,
+  user?: { name: string, email: string, avatarUrl: string }
 }) {
   const [internalId, setInternalId] = useState('home');
   const currentId = activeId !== undefined ? activeId : internalId;
   const handleSelect = onSelect || setInternalId;
+  const [avatarError, setAvatarError] = useState(false);
 
   return (
     <div className={`flex flex-col w-[260px] h-full bg-[#09090b] border-r border-white/10 p-3 font-sans ${className}`}>
@@ -252,6 +255,26 @@ export function SidebarNav({
             onSelect={handleSelect} 
           />
         ))}
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2 mt-2 mb-2 rounded-lg bg-black/20 border border-white/5">
+            {user.avatarUrl && !avatarError ? (
+              <img 
+                src={user.avatarUrl} 
+                alt={user.name} 
+                onError={() => setAvatarError(true)}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-green-500 text-black flex items-center justify-center font-bold text-sm shrink-0">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-[13px] font-medium text-white truncate">{user.name}</span>
+              <span className="text-[11px] text-zinc-500 truncate">{user.email}</span>
+            </div>
+          </div>
+        )}
         <LogoutButton />
       </div>
     </div>

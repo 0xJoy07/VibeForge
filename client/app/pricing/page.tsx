@@ -13,154 +13,133 @@ declare global {
   }
 }
 
-function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window !== "undefined" && typeof window.Razorpay !== "undefined") {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
+// Eager script load is now inside the component
 
-// ── Tier card component ───────────────────────────────────────────────────────
-
-interface Feature { name: string; included: boolean }
-interface TierCardProps {
-  name: string;
-  price: string;
-  description: string;
-  features: Feature[];
-  cta: React.ReactNode;
-  badge?: string;
-  featured?: boolean;
-  dim?: boolean;
-}
-
-function TierCard({ name, price, description, features, cta, badge, featured, dim }: TierCardProps) {
-  return (
-    <div className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-300
-      ${featured
-        ? "border-[#00c97a]/40 bg-[#00c97a]/[0.04] shadow-[0_0_60px_rgba(0,201,122,0.08)]"
-        : "border-white/[0.08] bg-white/[0.02]"}
-      ${dim ? "opacity-50 pointer-events-none" : "hover:border-white/20"}`}
-    >
-      {featured && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#00c97a] px-4 py-1 text-xs font-bold uppercase tracking-widest text-black">
-          Most popular
-        </div>
-      )}
-      {badge && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-white/20 bg-zinc-900 px-4 py-1 text-xs font-medium text-zinc-400">
-          {badge}
-        </div>
-      )}
-
-      <div className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-widest text-zinc-500">{name}</p>
-        <div className="mt-3 flex items-baseline gap-1">
-          <span className="text-4xl font-black tracking-tight text-white">{price}</span>
-          {price !== "₹0" && <span className="text-sm text-zinc-500">/mo</span>}
-        </div>
-        <p className="mt-3 text-sm leading-relaxed text-zinc-400">{description}</p>
-      </div>
-
-      <ul className="mb-8 flex-1 space-y-3">
-        {features.map((f) => (
-          <li key={f.name} className="flex items-start gap-3 text-sm">
-            {f.included
-              ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#00c97a]" />
-              : <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-zinc-700" />}
-            <span className={f.included ? "text-zinc-200" : "text-zinc-600"}>{f.name}</span>
-          </li>
-        ))}
-      </ul>
-
-      {cta}
-    </div>
-  );
-}
+import PricingCard from "@/components/PricingCard";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PricingPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isPro, setIsPro] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isAlreadyPro, setIsAlreadyPro] = useState(false);
+  const [statusLoaded, setStatusLoaded] = useState(false);
   const [user, setUser] = useState<{ email?: string; user_metadata?: { name?: string } } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [checkingStatus, setCheckingStatus] = useState(true);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     async function init() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setCheckingStatus(false); return; }
+      if (!user) { setStatusLoaded(true); return; }
       setIsLoggedIn(true);
       setUser(user);
       try {
         const res = await fetch("/api/payments/status");
         if (res.ok) {
           const data = await res.json() as { subscribed: boolean };
-          setIsPro(data.subscribed);
+          setIsAlreadyPro(data.subscribed);
         }
       } catch { /* ignore */ }
-      setCheckingStatus(false);
+      setStatusLoaded(true);
     }
     init();
   }, []);
 
   async function handleSubscribe() {
     if (!isLoggedIn) { router.push("/login?next=/pricing"); return; }
-    setLoading(true);
+    setIsProcessing(true);
     try {
       const res = await fetch("/api/payments/create-subscription", { method: "POST" });
-      const data = await res.json() as { subscriptionId?: string; keyId?: string; error?: string };
-      if (!res.ok || !data.subscriptionId) { alert(data.error ?? "Failed to create subscription."); return; }
+      const data = await res.json() as { orderId?: string; keyId?: string; amount?: number; currency?: string; error?: string };
 
-      const loaded = await loadRazorpayScript();
-      if (!loaded) { alert("Failed to load payment gateway."); return; }
+      if (!res.ok) {
+        alert(data.error ?? "Failed to create order.");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (!data.orderId) {
+        alert("Failed to create order.");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (typeof window === "undefined" || !window.Razorpay) {
+        alert("Failed to load payment gateway.");
+        setIsProcessing(false);
+        return;
+      }
 
       const rzp = new window.Razorpay({
         key: data.keyId,
-        subscription_id: data.subscriptionId,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
         name: "VibeForge",
-        description: "Pro Monthly Subscription",
+        description: "Pro Plan — Monthly",
         image: "/favicon.ico",
         theme: { color: "#16a34a" },
-        prefill: { email: user?.email, name: user?.user_metadata?.name },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        handler: async function(response: any) { 
-          const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_subscription_id: response.razorpay_subscription_id,
-              razorpay_signature: response.razorpay_signature
-            })
-          });
-          if (verifyRes.ok) {
-            window.location.href = '/dashboard?subscribed=true'; 
-          } else {
-            alert("Payment verification failed. Please contact support.");
-            setLoading(false);
-          }
+        prefill: {
+          email: user?.email ?? "",
+          name: user?.user_metadata?.name ?? "",
         },
-        modal: { ondismiss: function() { setLoading(false); } }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        handler: function (response: any) {
+          verifyPayment(
+            response.razorpay_order_id,
+            response.razorpay_payment_id,
+            response.razorpay_signature
+          );
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          },
+        },
       });
       rzp.open();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Something went wrong.");
-      setLoading(false);
+      setIsProcessing(false);
     }
   }
 
-  const ProCTA = isPro ? (
+  async function verifyPayment(orderId: string, paymentId: string, signature: string) {
+    try {
+      const res = await fetch("/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: orderId,
+          razorpay_payment_id: paymentId,
+          razorpay_signature: signature,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = "/dashboard?subscribed=true";
+      } else {
+        alert("Payment verification failed. Contact support.");
+        setIsProcessing(false);
+      }
+    } catch {
+      alert("Payment verification error.");
+      setIsProcessing(false);
+    }
+  }
+
+  const ProCTA = (statusLoaded && isAlreadyPro) ? (
     <Link
       href="/billing"
       className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#00c97a]/40 px-6 py-3 text-sm font-semibold text-[#00c97a] transition-colors hover:bg-[#00c97a]/10"
@@ -170,10 +149,10 @@ export default function PricingPage() {
   ) : (
     <button
       onClick={handleSubscribe}
-      disabled={loading || checkingStatus}
+      disabled={isProcessing}
       className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#00c97a] px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-[#00b06b] disabled:opacity-70"
     >
-      {loading
+      {isProcessing
         ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</>
         : <><Zap className="h-4 w-4" /> Subscribe to Pro</>}
     </button>
@@ -187,7 +166,7 @@ export default function PricingPage() {
 
       {/* Test-mode banner */}
       <div className="relative z-50 w-full bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-xs font-medium text-amber-300">
-        🧪 Test mode — use card <span className="font-mono font-bold">5267 3181 8797 5449</span>, expiry <span className="font-mono font-bold">12/29</span>, CVV <span className="font-mono font-bold">123</span>, OTP <span className="font-mono font-bold">1234</span>
+        🧪 Test mode — use card <span className="font-mono font-bold">4111 1111 1111 1111</span>, expiry <span className="font-mono font-bold">12/29</span>, CVV <span className="font-mono font-bold">123</span>
       </div>
 
       {/* Navbar */}
@@ -209,9 +188,8 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Tier grid */}
         <div className="grid w-full max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
-          <TierCard
+          <PricingCard
             name="Free"
             price="₹0"
             description="Perfect for trying out VibeForge on personal projects."
@@ -223,21 +201,15 @@ export default function PricingPage() {
               { name: "Report exports (HTML/JSON)", included: false },
               { name: "Scan history", included: false },
             ]}
-            cta={
-              <Link
-                href="/scanner"
-                className="flex w-full items-center justify-center rounded-xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-300 transition-colors hover:border-white/20 hover:text-white"
-              >
-                Get started free
-              </Link>
-            }
+            cta="Get started free"
+            ctaHref="/scanner"
           />
 
-          <TierCard
+          <PricingCard
             name="Pro"
             price="₹499"
             description="For professional developers shipping production-grade code."
-            featured
+            featured={true}
             features={[
               { name: "Unlimited web scans", included: true },
               { name: "CLI tool access", included: true },
@@ -249,12 +221,12 @@ export default function PricingPage() {
             cta={ProCTA}
           />
 
-          <TierCard
+          <PricingCard
             name="Team"
             price="₹1499"
             description="Everything your team needs with shared dashboards and seats."
             badge="Coming soon"
-            dim
+            disabled={true}
             features={[
               { name: "Everything in Pro", included: true },
               { name: "5 seats included", included: true },

@@ -3,6 +3,7 @@
 import { Loader2, Terminal, CheckCircle2, Code2, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { BackNav } from "@/components/BackNav";
+import Link from "next/link";
 import Editor from "@monaco-editor/react";
 import ScoreRingEditor from "@/components/ScoreRingEditor";
 import EditorIssueList from "@/components/EditorIssueList";
@@ -22,16 +23,25 @@ export default function EditorPage() {
   const [language, setLanguage] = useState("typescript");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [reviewState, setReviewState] = useState<"idle" | "loading" | "done">("idle");
+  const [quotaError, setQuotaError] = useState(false);
 
   async function review() {
     setReviewState("loading");
     setResult(null);
+    setQuotaError(false);
     try {
       const response = await fetch("/api/review-code", { 
         method: "POST", 
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({ code, language }) 
       });
+      
+      if (response.status === 429) {
+        setQuotaError(true);
+        setReviewState("idle");
+        return;
+      }
+      
       const data = await response.json();
       
       if (!response.ok) {
@@ -69,7 +79,7 @@ export default function EditorPage() {
             <select 
               value={language} 
               onChange={(e) => setLanguage(e.target.value)} 
-              className="rounded-md border border-white/10 bg-[#06110b] px-2 py-1 text-xs outline-none focus:border-green-400"
+              className="rounded-md border border-white/10 bg-zinc-900 px-3 py-1 text-white text-xs outline-none focus:border-green-400"
             >
               <option value="typescript">TypeScript</option>
               <option value="javascript">JavaScript</option>
@@ -81,6 +91,7 @@ export default function EditorPage() {
           {/* Monaco Editor */}
           <div className="flex-1 overflow-hidden">
             <Editor
+              height="100%"
               theme="vs-dark"
               language={language || "typescript"}
               value={code}
@@ -117,8 +128,21 @@ export default function EditorPage() {
 
         {/* Right Panel: Results & Empty State */}
         <section className="flex h-[calc(100vh-400px)] w-full flex-col overflow-y-auto bg-zinc-950/50 p-6 md:h-full md:w-1/2">
-          {reviewState === "idle" && !result && (
-            <div className="flex h-full flex-col items-center justify-center text-center text-zinc-500">
+          
+          {quotaError && (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 className="font-bold text-lg text-emerald-50">You have used all 3 free scans today.</h3>
+                <p className="text-emerald-100/70 text-sm mt-1">Upgrade to Pro for unlimited scans, CLI access, and report exports.</p>
+              </div>
+              <Link href="/pricing" className="shrink-0 rounded-lg bg-[#00c97a] hover:bg-[#00b06b] px-6 py-2.5 font-bold text-black transition-colors">
+                Upgrade to Pro
+              </Link>
+            </div>
+          )}
+
+          {reviewState === "idle" && !result && !quotaError && (
+            <div className="flex h-full items-center justify-center flex-col text-center text-zinc-500">
               <Code2 className="mb-4 h-12 w-12 opacity-50" />
               <h3 className="text-lg font-medium text-zinc-300">Paste code and hit Review</h3>
               <p className="mt-2 max-w-sm text-sm">AI will flag security issues, AI slop, dead code and more.</p>

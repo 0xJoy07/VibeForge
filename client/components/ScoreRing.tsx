@@ -27,7 +27,7 @@ export default function ScoreRing({ scores, grade }: { scores: Scores; grade: Gr
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart cx="50%" cy="50%" innerRadius="28%" outerRadius="95%" data={data} startAngle={90} endAngle={-270} barSize={10}>
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-            <RadialBar dataKey="value" background={{ fill: "#183522" }} cornerRadius={8} />
+            <RadialBar dataKey="value" background={{ fill: "#183522" }} cornerRadius={8} isAnimationActive={true} animationDuration={800} animationEasing="ease-out" />
           </RadialBarChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

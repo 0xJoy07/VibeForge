@@ -117,7 +117,7 @@ export function PlanCard({ initialIsPro }: PlanCardProps) {
               <Button 
                 variant="outline" 
                 onClick={() => setShowCancelConfirm(true)}
-                className="w-full sm:w-auto self-start hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                className="w-full sm:w-auto self-start bg-transparent border-white/20 text-zinc-300 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-colors"
               >
                 Cancel subscription
               </Button>

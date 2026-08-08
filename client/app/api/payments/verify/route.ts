@@ -1,47 +1,35 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
-import crypto from "crypto";
-import { prisma } from "@/lib/prisma";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:4000";
+
+/**
+ * POST /api/payments/verify
+ * Proxies verification to the Express server which handles signature
+ * verification and activates the Pro subscription.
+ */
 export async function POST(request: Request) {
   try {
-    const session = await requireUser();
-    const dbUser = session.dbUser;
+    const supabase = await createSupabaseServerClient();
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (!dbUser) {
+    if (!session) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = await request.json();
+    const body = await request.json();
 
-    if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const secret = process.env.RAZORPAY_KEY_SECRET;
-    if (!secret) {
-      return NextResponse.json({ error: "Razorpay secret not configured" }, { status: 500 });
-    }
-
-    const generatedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
-      .digest("hex");
-
-    if (generatedSignature !== razorpay_signature) {
-      return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 });
-    }
-
-    // Signature valid, activate the subscription in DB
-    await prisma.subscription.update({
-      where: { userId: dbUser.id },
-      data: {
-        status: "active",
-        razorpaySubId: razorpay_subscription_id,
+    const res = await fetch(`${SERVER_URL}/api/payments/verify-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
       },
+      body: JSON.stringify(body),
     });
 
-    return NextResponse.json({ success: true });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error("Payment verification error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

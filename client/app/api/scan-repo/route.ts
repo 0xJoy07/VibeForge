@@ -32,13 +32,25 @@ function weightedScore(scores: {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { repoUrl?: string };
-    const { repoUrl } = body;
+    const body = (await request.json()) as { 
+      repoUrl?: string; 
+      files?: { path: string, content: string }[] 
+    };
+    const { repoUrl, files: bodyFiles } = body;
 
-    // Validate URL
-    if (!repoUrl || !GITHUB_URL_RE.test(repoUrl)) {
+    if (!repoUrl) {
       return NextResponse.json(
-        { error: "A valid github.com repository URL is required." },
+        { error: "A repository URL is required." },
+        { status: 400 }
+      );
+    }
+
+    const isGithub = repoUrl.startsWith("https://github.com");
+    const isCli = repoUrl.startsWith("cli://");
+
+    if (!isGithub && !isCli) {
+      return NextResponse.json(
+        { error: "Only GitHub URLs or CLI local scans are supported." },
         { status: 400 }
       );
     }
@@ -88,10 +100,12 @@ export async function POST(request: Request) {
         const quota = await checkAndIncrementQuota(fingerprint);
         if (!quota.allowed) {
           return NextResponse.json(
-            {
-              error: "Daily scan limit reached. Upgrade to Pro for unlimited scans.",
-              upgrade: "/pricing",
-              remaining: 0,
+            { 
+              error: 'Daily scan limit reached', 
+              message: 'Free users get 3 scans per day. Upgrade to Pro for unlimited scans.', 
+              upgrade: '/pricing', 
+              used: 3, 
+              remaining: 0 
             },
             { status: 429 }
           );
@@ -100,24 +114,27 @@ export async function POST(request: Request) {
     }
 
     // ── Fetch repo files ──────────────────────────────────────────────────────
-    let files;
-    try {
-      files = await fetchRepoFiles(repoUrl);
-    } catch (err) {
-      const e = err as { status?: number; message?: string };
-      if (e.status === 404) {
-        return NextResponse.json(
-          { error: "Repository not found or is private." },
-          { status: 422 }
-        );
+    let files = bodyFiles && bodyFiles.length > 0 ? bodyFiles : [];
+    
+    if (files.length === 0 && isGithub) {
+      try {
+        files = await fetchRepoFiles(repoUrl);
+      } catch (err) {
+        const e = err as { status?: number; message?: string };
+        if (e.status === 404) {
+          return NextResponse.json(
+            { error: "Repository not found or is private." },
+            { status: 422 }
+          );
+        }
+        if (e.status === 403) {
+          return NextResponse.json(
+            { error: "GitHub rate limit exceeded. Try again later or add a GITHUB_TOKEN." },
+            { status: 422 }
+          );
+        }
+        throw err;
       }
-      if (e.status === 403) {
-        return NextResponse.json(
-          { error: "GitHub rate limit exceeded. Try again later or add a GITHUB_TOKEN." },
-          { status: 422 }
-        );
-      }
-      throw err;
     }
 
     if (!files.length) {

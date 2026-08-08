@@ -10,12 +10,19 @@ const severityColors = {
   info: "border-l-teal-500 bg-teal-500/10 text-teal-200", // Prompt requested Teal for info
 } as const;
 
-function IssueCard({ issue }: { issue: Issue }) {
+function IssueCard({ issue, index }: { issue: Issue; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const [applied, setApplied] = useState(false);
 
   return (
-    <div className="w-full rounded-xl border border-white/10 bg-[#06110b] p-4 transition-colors hover:border-white/20">
+    <div 
+      className={`w-full overflow-hidden rounded-xl border border-white/10 bg-[#06110b] p-4 transition-colors hover:border-white/20 border-l-4 animate-[fadeInUp_0.4s_ease_forwards] opacity-0 ${
+        issue.severity === 'critical' ? 'border-l-red-500' :
+        issue.severity === 'warning' ? 'border-l-amber-500' :
+        'border-l-teal-500'
+      }`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
       {/* Line 1: Meta info */}
       <div className="flex items-center gap-3 text-xs font-medium">
         <span className={`rounded-full px-2 py-0.5 capitalize border-l-[3px] ${severityColors[issue.severity]}`}>
@@ -98,7 +105,7 @@ export default function EditorIssueList({ issues }: { issues: Issue[] }) {
             
             <div className="flex flex-col gap-3">
               {grouped.map((issue, idx) => (
-                <IssueCard key={`${severity}-${idx}`} issue={issue} />
+                <IssueCard key={`${severity}-${idx}`} issue={issue} index={idx} />
               ))}
             </div>
           </section>

@@ -78,10 +78,12 @@ export async function POST(request: Request) {
         const quota = await checkAndIncrementQuota(fingerprint);
         if (!quota.allowed) {
           return NextResponse.json(
-            {
-              error: "Daily review limit reached. Upgrade to Pro for unlimited reviews.",
-              upgrade: "/pricing",
-              remaining: 0,
+            { 
+              error: 'Daily scan limit reached', 
+              message: 'Free users get 3 scans per day. Upgrade to Pro for unlimited scans.', 
+              upgrade: '/pricing', 
+              used: 3, 
+              remaining: 0 
             },
             { status: 429 }
           );

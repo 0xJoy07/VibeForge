@@ -7,6 +7,7 @@ import Link from "next/link";
 import { BackNav } from "@/components/BackNav";
 import IssueTable from "@/components/IssueTable";
 import ScoreRing from "@/components/ScoreRing";
+import ScanSkeleton from "@/components/scanner/ScanSkeleton";
 import { demoResult, type ScanResult } from "@/lib/analysis";
 
 function ScannerContent() {
@@ -15,11 +16,13 @@ function ScannerContent() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quotaError, setQuotaError] = useState(false);
 
   async function runScan(url = repoUrl) {
     if (!url.trim()) return;
     setLoading(true);
     setError(null);
+    setQuotaError(false);
     setResult(null);
     try {
       const response = await fetch("/api/scan-repo", {
@@ -27,6 +30,12 @@ function ScannerContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoUrl: url.trim() }),
       });
+      
+      if (response.status === 429) {
+        setQuotaError(true);
+        return;
+      }
+      
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Scan failed.");
       setResult(body);
@@ -63,8 +72,23 @@ function ScannerContent() {
           </button>
         </div>
 
+        {quotaError && (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-lg text-emerald-50">You have used all 3 free scans today.</h3>
+              <p className="text-emerald-100/70 text-sm mt-1">Upgrade to Pro for unlimited scans, CLI access, and report exports.</p>
+            </div>
+            <Link href="/pricing" className="shrink-0 rounded-lg bg-[#00c97a] hover:bg-[#00b06b] px-6 py-2.5 font-bold text-black transition-colors">
+              Upgrade to Pro
+            </Link>
+          </div>
+        )}
+
         {error && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-amber-100">{error}</div>}
-        {result && (
+        
+        {loading && !result && <ScanSkeleton />}
+        
+        {result && !loading && (
           <div className="space-y-6">
             <ScoreRing scores={result.scores} grade={result.grade} />
             <IssueTable issues={result.issues} />

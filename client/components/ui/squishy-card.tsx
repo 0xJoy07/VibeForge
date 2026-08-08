@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, X } from "lucide-react";
+import Link from "next/link";
 
 export interface SquishyCardProps {
   tier: string;
@@ -10,9 +11,10 @@ export interface SquishyCardProps {
   features: { name: string; included: boolean }[];
   buttonText: string;
   isPopular?: boolean;
+  href?: string;
 }
 
-export const SquishyCard = ({ tier, price, description, features, buttonText, isPopular }: SquishyCardProps) => {
+export const SquishyCard = ({ tier, price, description, features, buttonText, isPopular, href }: SquishyCardProps) => {
   return (
     <motion.div
       whileHover="hover"
@@ -77,13 +79,23 @@ export const SquishyCard = ({ tier, price, description, features, buttonText, is
       </div>
       
       <div className="relative z-20 mt-auto pt-4 w-full">
-        <button className={`w-full rounded-[12px] py-3 text-center font-bold transition-all ${
-          isPopular 
-            ? "bg-[#00c97a] hover:bg-[#00b06b] text-black shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-95" 
-            : "bg-white/10 hover:bg-white/20 text-white border border-white/10 active:scale-95"
-        }`}>
-          {buttonText}
-        </button>
+        {href ? (
+          <Link href={href} className={`block w-full rounded-[12px] py-3 text-center font-bold transition-all ${
+            isPopular 
+              ? "bg-[#00c97a] hover:bg-[#00b06b] text-black shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-95" 
+              : "bg-white/10 hover:bg-white/20 text-white border border-white/10 active:scale-95"
+          }`}>
+            {buttonText}
+          </Link>
+        ) : (
+          <button className={`w-full rounded-[12px] py-3 text-center font-bold transition-all ${
+            isPopular 
+              ? "bg-[#00c97a] hover:bg-[#00b06b] text-black shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-95" 
+              : "bg-white/10 hover:bg-white/20 text-white border border-white/10 active:scale-95"
+          }`}>
+            {buttonText}
+          </button>
+        )}
       </div>
       <Background isPopular={isPopular} />
     </motion.div>

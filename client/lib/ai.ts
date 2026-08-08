@@ -71,7 +71,7 @@ export async function reviewRepo(files: RepoFile[]): Promise<RepoReviewResult> {
     .join("\n\n");
 
   const completion = await openrouter.chat.completions.create({
-    model: "openrouter/auto",
+    model: "openrouter/free",
     messages: [
       { role: "system", content: REPO_SYSTEM_PROMPT },
       { role: "user", content: userContent }
@@ -103,7 +103,7 @@ export async function reviewSnippet(
   const userContent = `Language: ${language}\n\n\`\`\`${language}\n${code}\n\`\`\``;
 
   const completion = await openrouter.chat.completions.create({
-    model: "openrouter/auto",
+    model: "openrouter/free",
     messages: [
       { role: "system", content: SNIPPET_SYSTEM_PROMPT },
       { role: "user", content: userContent }

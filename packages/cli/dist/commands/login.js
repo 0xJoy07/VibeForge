@@ -1,13 +1,19 @@
-import http from "http";
-import crypto from "crypto";
-import open from "open";
-import chalk from "chalk";
-import { saveToken } from "../auth.js";
-export async function loginCommand(apiUrl) {
-    const state = crypto.randomBytes(16).toString("hex");
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.loginCommand = loginCommand;
+const http_1 = __importDefault(require("http"));
+const crypto_1 = __importDefault(require("crypto"));
+const open_1 = __importDefault(require("open"));
+const chalk_1 = __importDefault(require("chalk"));
+const auth_1 = require("../auth");
+async function loginCommand(apiUrl) {
+    const state = crypto_1.default.randomBytes(16).toString("hex");
     const port = 9876;
     return new Promise((resolve, reject) => {
-        const server = http.createServer((req, res) => {
+        const server = http_1.default.createServer((req, res) => {
             // Handle CORS for local POSTs from the browser
             res.setHeader("Access-Control-Allow-Origin", "*");
             res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -35,10 +41,10 @@ export async function loginCommand(apiUrl) {
                             res.end(JSON.stringify({ error: "Missing token." }));
                             return;
                         }
-                        saveToken(data.token);
+                        (0, auth_1.saveToken)(data.token);
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ success: true }));
-                        console.log(chalk.green("\n✔ Authenticated successfully!\n"));
+                        console.log(chalk_1.default.green("\n✔ Authenticated successfully!\n"));
                         server.close();
                         clearTimeout(timeoutId);
                         resolve();
@@ -55,19 +61,19 @@ export async function loginCommand(apiUrl) {
             }
         });
         server.listen(port, async () => {
-            console.log(chalk.blue("Opening browser for authentication..."));
+            console.log(chalk_1.default.blue("Opening browser for authentication..."));
             try {
-                await open(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
+                await (0, open_1.default)(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
             }
             catch (err) {
-                console.error(chalk.red("Failed to open browser. Please navigate to:"));
+                console.error(chalk_1.default.red("Failed to open browser. Please navigate to:"));
                 console.log(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
             }
         });
         const timeoutId = setTimeout(() => {
             server.close();
-            console.error(chalk.red("\nAuthentication timed out after 120 seconds."));
+            console.error(chalk_1.default.red("\nAuthentication timed out after 120 seconds."));
             reject(new Error("Timeout"));
-        }, 120_000);
+        }, 120000);
     });
 }

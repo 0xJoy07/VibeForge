@@ -35,7 +35,7 @@ export async function scanCommand(dir: string, options: any, apiUrl: string): Pr
   }
 
   const absDir = path.resolve(dir);
-  const allFiles = globSync("**/*", { cwd: absDir, nodir: true });
+  const allFiles = globSync("**/*.{ts,js,py,go,java}", { cwd: absDir, nodir: true });
   const filesToScan = allFiles.filter((f) => !shouldSkip(f));
 
   if (filesToScan.length === 0) {
@@ -59,7 +59,7 @@ export async function scanCommand(dir: string, options: any, apiUrl: string): Pr
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        repoUrl: `cli://${path.basename(absDir)}`,
+        repoUrl: `cli://${absDir}`,
         files: filesPayload,
       }),
     });

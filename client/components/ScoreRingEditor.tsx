@@ -22,13 +22,13 @@ export default function ScoreRingEditor({ scores, grade }: { scores: Scores; gra
   }));
 
   return (
-    <div className="flex h-[180px] w-full flex-row items-center gap-6 rounded-xl border border-white/10 bg-[#0b1a11] p-4">
+    <div className="flex min-h-[180px] w-full flex-row items-center gap-6 rounded-xl border border-white/10 bg-[#0b1a11] p-4">
       {/* Left side: Radial Chart */}
       <div className="relative h-[150px] w-[150px] shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart cx="50%" cy="50%" innerRadius="25%" outerRadius="100%" data={data} startAngle={90} endAngle={-270} barSize={6}>
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-            <RadialBar dataKey="value" background={{ fill: "#183522" }} cornerRadius={4} />
+            <RadialBar dataKey="value" background={{ fill: "#183522" }} cornerRadius={4} isAnimationActive={true} animationDuration={800} animationEasing="ease-out" />
           </RadialBarChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

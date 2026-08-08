@@ -1,6 +1,13 @@
-import fs from "fs";
-import chalk from "chalk";
-export function generateHtmlReport(results, outputPath) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateHtmlReport = generateHtmlReport;
+exports.printTerminalSummary = printTerminalSummary;
+const fs_1 = __importDefault(require("fs"));
+const chalk_1 = __importDefault(require("chalk"));
+function generateHtmlReport(results, outputPath) {
     const html = `
 <!DOCTYPE html>
 <html>
@@ -62,40 +69,40 @@ export function generateHtmlReport(results, outputPath) {
 </body>
 </html>
   `;
-    fs.writeFileSync(outputPath, html.trim());
+    fs_1.default.writeFileSync(outputPath, html.trim());
 }
-export function printTerminalSummary(results) {
-    console.log("\n" + chalk.bold("VIBEFORGE SCAN RESULTS"));
+function printTerminalSummary(results) {
+    console.log("\n" + chalk_1.default.bold("VIBEFORGE SCAN RESULTS"));
     console.log("======================");
     const score = results.scores?.security ?? results.score ?? 0;
-    let gradeColor = chalk.green;
+    let gradeColor = chalk_1.default.green;
     if (results.grade === "B")
-        gradeColor = chalk.cyan;
+        gradeColor = chalk_1.default.cyan;
     if (results.grade === "C")
-        gradeColor = chalk.yellow;
+        gradeColor = chalk_1.default.yellow;
     if (results.grade === "D")
-        gradeColor = chalk.magenta;
+        gradeColor = chalk_1.default.magenta;
     if (results.grade === "F")
-        gradeColor = chalk.red;
+        gradeColor = chalk_1.default.red;
     console.log(`\nGrade: ${gradeColor.bold(results.grade)}  (Score: ${score}/100)\n`);
     if (results.scores) {
         for (const [key, val] of Object.entries(results.scores)) {
             const v = val;
             const filled = Math.round(v / 5);
             const empty = 20 - filled;
-            const bar = chalk.green("█".repeat(filled)) + chalk.gray("░".repeat(empty));
+            const bar = chalk_1.default.green("█".repeat(filled)) + chalk_1.default.gray("░".repeat(empty));
             console.log(`${key.padEnd(14)} ${bar} ${v}`);
         }
     }
-    console.log(`\nFound ${chalk.bold(results.issues.length)} issues.\n`);
+    console.log(`\nFound ${chalk_1.default.bold(results.issues.length)} issues.\n`);
     for (const issue of results.issues) {
-        let severity = chalk.blue("INFO");
+        let severity = chalk_1.default.blue("INFO");
         if (issue.severity === "warning")
-            severity = chalk.yellow("WARN");
+            severity = chalk_1.default.yellow("WARN");
         if (issue.severity === "critical")
-            severity = chalk.red("CRIT");
+            severity = chalk_1.default.red("CRIT");
         const loc = issue.file ? ` (${issue.file}${issue.line ? `:${issue.line}` : ''})` : "";
-        console.log(`${severity} ${chalk.bold(issue.title)}${chalk.gray(loc)}`);
+        console.log(`${severity} ${chalk_1.default.bold(issue.title)}${chalk_1.default.gray(loc)}`);
         console.log(`  ${issue.description}\n`);
     }
 }
