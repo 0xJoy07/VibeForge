@@ -246,7 +246,7 @@ export default function PricingPage() {
 
           <TierCard
             name="Team"
-            price="₹1499"
+            price="₹149"
             description="Everything your team needs with shared dashboards and seats."
             badge="Coming soon"
             dim

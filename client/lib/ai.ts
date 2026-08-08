@@ -65,7 +65,6 @@ Please respond ONLY with valid JSON matching this exact structure:
  * reviewRepo — Full codebase review using OpenRouter
  */
 export async function reviewRepo(files: RepoFile[]): Promise<RepoReviewResult> {
-  const client = getClient();
 
   const userContent = files
     .map((f) => `FILE: ${f.path}\n\`\`\`\n${f.content.slice(0, 18_000)}\n\`\`\``)
