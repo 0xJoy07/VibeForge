@@ -6,7 +6,7 @@ import { loginCommand } from "./commands/login";
 import { scanCommand } from "./commands/scan";
 import { clearToken, getStoredToken, validateTokenWithServer } from "./auth";
 
-const API_URL = process.env.VIBEFORGE_API_URL || "http://localhost:3000";
+const API_URL = process.env.VIBEFORGE_API_URL;
 
 const program = new Command();
 

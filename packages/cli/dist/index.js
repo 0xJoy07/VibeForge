@@ -9,7 +9,7 @@ const chalk_1 = __importDefault(require("chalk"));
 const login_1 = require("./commands/login");
 const scan_1 = require("./commands/scan");
 const auth_1 = require("./auth");
-const API_URL = process.env.VIBEFORGE_API_URL || "http://localhost:3000";
+const API_URL = process.env.VIBEFORGE_API_URL;
 const program = new commander_1.Command();
 program
     .name("vibeforge")
