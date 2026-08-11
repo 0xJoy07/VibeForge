@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Test / coverage
+coverage/
+
+# Lockfiles (optional; keep if you want them tracked)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
