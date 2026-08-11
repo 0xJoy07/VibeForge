@@ -9,7 +9,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex h-screen bg-black overflow-hidden">
       {/* Sidebar */}
       <div className="shrink-0 h-full hidden md:block">
-        <SidebarNav user={{ name: dbUser?.name || 'User', email: dbUser?.email || '', avatarUrl: dbUser?.image || '' }} />
+        <SidebarNav user={{ name: dbUser?.name || 'User', email: dbUser?.email || '', avatarUrl: dbUser?.avatar || '' }} />
       </div>
 
       {/* Main Content Area */}

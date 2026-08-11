@@ -27,8 +27,11 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
-    data: { session }
   } = await supabase.auth.getUser();
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // If a session exists, check if its token is blacklisted
   let isBlacklisted = false;
