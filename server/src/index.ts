@@ -17,7 +17,11 @@ const port = Number(process.env.PORT ?? 4000);
 // ── Global Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:3000",
+      "https://vibeforgescanner.vercel.app",
+      "http://localhost:3000"
+    ],
     credentials: true,
   })
 );
