@@ -4,6 +4,7 @@ import { Terminal, Shield, Check, Laptop, Clock, SearchCode, Code2, CreditCard }
 import Link from "next/link";
 import { CopyCommand } from "@/components/CopyCommand";
 import { SubscribedToast } from "@/components/SubscribedToast";
+import { ActiveDevices } from "@/components/dashboard/ActiveDevices";
 
 export default async function DashboardPage() {
   const session = await requireUser();
@@ -88,45 +89,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-2">
-          <Laptop className="w-5 h-5 text-zinc-400" />
-          <h3 className="font-medium text-white">Active Devices</h3>
-        </div>
-        <div className="divide-y divide-white/5">
-          {activeSession ? (
-            <div className="px-6 py-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-white">{activeSession.deviceInfo}</p>
-                <div className="flex items-center gap-1.5 mt-1 text-xs text-zinc-500">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>Last seen: {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(activeSession.lastSeenAt)}</span>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-[#00c97a]/20 text-[#00c97a] border border-[#00c97a]/30">
-                This device
-              </span>
-            </div>
-          ) : (
-            <div className="px-6 py-4 text-sm text-zinc-500">No active browser session detected.</div>
-          )}
-
-          {cliToken && (
-            <div className="px-6 py-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-white">CLI</p>
-                <div className="flex items-center gap-1.5 mt-1 text-xs text-zinc-500">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>Last used: {cliToken.lastUsedAt ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(cliToken.lastUsedAt) : 'Never'}</span>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-zinc-500/20 text-zinc-400 border border-zinc-500/30">
-                Terminal
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
+      <ActiveDevices token={session.session.access_token ?? ""} />
 
       <div className="rounded-xl border border-white/10 bg-white/[0.02] p-8 mt-4 text-center hover:border-green-500/20 transition-all duration-200 min-h-[200px] flex flex-col items-center justify-center">
         <h3 className="text-lg font-medium text-white mb-2">No recent scans</h3>
