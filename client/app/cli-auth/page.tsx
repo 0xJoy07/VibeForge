@@ -1,4 +1,5 @@
-import { requireUser, isPro } from "@/lib/auth";
+import { getUser, isPro } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import CliAuthClient from "./client-page";
@@ -8,7 +9,6 @@ export default async function CliAuthPage({
 }: {
   searchParams: Promise<{ port?: string; state?: string }>;
 }) {
-  const session = await requireUser();
   const { port, state } = await searchParams;
 
   if (!port || !state) {
@@ -21,6 +21,12 @@ export default async function CliAuthPage({
         </div>
       </div>
     );
+  }
+
+  const session = await getUser();
+  if (!session) {
+    const nextUrl = encodeURIComponent(`/cli-auth?port=${port}&state=${state}`);
+    redirect(`/login?next=${nextUrl}`);
   }
 
   const pro = session.dbUser ? await isPro(session.dbUser.id) : false;
@@ -46,7 +52,7 @@ export default async function CliAuthPage({
   // Generate plain token and hand it off to the client component to POST
   let plainToken = "";
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/tokens`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/token`, {
       method: "POST",
       headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
     });
