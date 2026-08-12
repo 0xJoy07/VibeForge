@@ -15,6 +15,16 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "VibeForge - Analyze your repo",
   description: "AI-powered codebase analysis and resolution engine.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "VibeForge - Analyze your repo",
+    description: "AI-powered codebase analysis and resolution engine.",
+    images: [{ url: "/logo.png" }],
+  },
 };
 
 export default function RootLayout({

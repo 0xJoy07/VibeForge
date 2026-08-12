@@ -3,7 +3,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="./assets/logo-light.svg">
-  <img alt="VibeForge" width="480" src="./assets/logo-dark.svg">
+  <img alt="VibeForge" width="480" src="./client/public/logo.png">
 </picture>
 
 <svg xmlns="http://www.w3.org/2000/svg" width="480" height="60" viewBox="0 0 480 60">

@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import Velaris from "@/components/ui/velaris";
 import PricingCard from "@/components/PricingCard";
 import Navbar from "@/components/Navbar";
+import Image from "next/image";
 
 export default function LandingPage() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -350,9 +351,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-24">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-white text-black">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
+                <Image src="/logo.png" alt="VibeForge" width={22} height={22} className="rounded-[6px]" />
                 <span className="font-semibold text-[15px] tracking-[-0.01em] text-white">VibeForge</span>
               </div>
               <p className="text-zinc-500 text-sm">

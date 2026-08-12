@@ -18,6 +18,7 @@ import {
   Code
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { LogoutButton } from '../LogoutButton';
 
 export type NavItemData = {
@@ -75,8 +76,8 @@ function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect
         className="flex items-center justify-between px-2 py-2 mb-4 rounded-lg hover:bg-white/5 cursor-pointer transition-colors select-none group"
       >
         <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-8 h-8 rounded-[6px] bg-[#00c97a] text-black flex items-center justify-center font-bold text-[13px] shadow-sm">
-            <Code className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-[6px] overflow-hidden shrink-0">
+            <Image src="/logo.png" alt="VibeForge" width={32} height={32} className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col overflow-hidden">
             <span className="text-[13px] font-medium leading-none mb-1 text-white truncate max-w-[120px]">{current}</span>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BackNav } from "@/components/BackNav";
@@ -72,6 +73,12 @@ export default function LoginContent() {
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-[#00c97a]/10 blur-[120px]" />
 
       <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center">
+
+        {/* Logo */}
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <Image src="/logo.png" alt="VibeForge" width={48} height={48} className="rounded-[10px]" />
+          <span className="font-semibold text-[16px] tracking-[-0.01em] text-white">VibeForge</span>
+        </div>
 
         {/* Card */}
         <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl backdrop-blur-sm">
