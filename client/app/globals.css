@@ -2,6 +2,20 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* VibeForge brand tokens */
+:root {
+  --vf-bg:          #050e0a;
+  --vf-surface:     #0d1a12;
+  --vf-border:      #1a3326;
+  --vf-glow-core:   #064e3b;
+  --vf-glow-out:    #052e16;
+  --vf-green:       #22c55e;
+  --vf-green-lt:    #4ade80;
+  --vf-green-dim:   #166534;
+  --vf-white:       #f8fafc;
+  --vf-muted:       #6b7c74;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
