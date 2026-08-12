@@ -20,38 +20,42 @@ export async function loginCommand(apiUrl: string): Promise<void> {
         return;
       }
 
-      if (req.method === "POST" && req.url === "/callback") {
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk.toString();
-        });
-        req.on("end", () => {
-          try {
-            const data = JSON.parse(body);
-            if (data.state !== state) {
-              res.writeHead(400);
-              res.end(JSON.stringify({ error: "Invalid state parameter." }));
-              return;
-            }
-            if (!data.token) {
-              res.writeHead(400);
-              res.end(JSON.stringify({ error: "Missing token." }));
-              return;
-            }
+      if (req.method === "GET" && req.url?.startsWith("/callback")) {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const urlToken = url.searchParams.get("token");
+        const queryState = url.searchParams.get("state");
 
-            saveToken(data.token);
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: true }), () => {
-              console.log(chalk.green("\n✔ Authenticated successfully!\n"));
-              server.close();
-              clearTimeout(timeoutId);
-              setTimeout(() => resolve(), 1000);
-            });
-          } catch (err) {
-            res.writeHead(400);
-            res.end(JSON.stringify({ error: "Invalid JSON body." }));
+        if (queryState !== state) {
+          res.writeHead(400, { "Content-Type": "text/html" });
+          res.end("<h1>Authentication Failed</h1><p>Invalid state parameter. Please try logging in again.</p>");
+          return;
+        }
+        if (!urlToken) {
+          res.writeHead(400, { "Content-Type": "text/html" });
+          res.end("<h1>Authentication Failed</h1><p>Missing token. Please try logging in again.</p>");
+          return;
+        }
+
+        saveToken(urlToken);
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(
+          `<html>
+            <body style="background: black; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; flex-direction: column;">
+              <div style="width: 64px; height: 64px; border-radius: 50%; background: #00c97a; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h1 style="margin: 0 0 8px;">Terminal authenticated!</h1>
+              <p style="color: #999; margin: 0;">You can safely close this tab and return to your terminal.</p>
+              <script>setTimeout(() => window.close(), 3000);</script>
+            </body>
+          </html>`, 
+          () => {
+            console.log(chalk.green("\n✔ Authenticated successfully!\n"));
+            server.close();
+            clearTimeout(timeoutId);
+            setTimeout(() => resolve(), 1000);
           }
-        });
+        );
       } else {
         res.writeHead(404);
         res.end();

@@ -42,11 +42,12 @@ async function loginCommand(apiUrl) {
                         }
                         (0, auth_1.saveToken)(data.token);
                         res.writeHead(200, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ success: true }));
-                        console.log(chalk_1.default.green("\n✔ Authenticated successfully!\n"));
-                        server.close();
-                        clearTimeout(timeoutId);
-                        setTimeout(() => resolve(), 500);
+                        res.end(JSON.stringify({ success: true }), () => {
+                            console.log(chalk_1.default.green("\n✔ Authenticated successfully!\n"));
+                            server.close();
+                            clearTimeout(timeoutId);
+                            setTimeout(() => resolve(), 1000);
+                        });
                     }
                     catch (err) {
                         res.writeHead(400);
@@ -59,7 +60,7 @@ async function loginCommand(apiUrl) {
                 res.end();
             }
         });
-        server.listen(0, async () => {
+        server.listen(0, "127.0.0.1", async () => {
             const address = server.address();
             const actualPort = typeof address === "string" ? 9876 : address?.port || 9876;
             console.log(chalk_1.default.blue("Opening browser for authentication..."));
