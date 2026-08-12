@@ -13,7 +13,7 @@ const router = Router();
 
 router.post("/api/scan-repo", optionalAuth, checkQuota, async (req, res, next) => {
   try {
-    const { repoUrl } = (req.body ?? {}) as { repoUrl?: string };
+    const { repoUrl, files: cliFiles } = (req.body ?? {}) as { repoUrl?: string; files?: { path: string; content: string }[] };
     if (!repoUrl) {
       res.status(400).json({ error: "repoUrl is required." });
       return;
@@ -25,7 +25,11 @@ router.post("/api/scan-repo", optionalAuth, checkQuota, async (req, res, next) =
     if (repoUrl.includes("github.com/OWASP/WebGoat") && !process.env.OPENROUTER_API_KEY) {
       result = demoResult(repoUrl);
     } else {
-      const files = await fetchRepoFiles(repoUrl);
+      let files = cliFiles && cliFiles.length > 0 ? cliFiles : [];
+      if (!files.length && !repoUrl.startsWith("cli://")) {
+        files = await fetchRepoFiles(repoUrl);
+      }
+      
       if (!files.length) {
         res.status(422).json({ error: "No supported source files were found." });
         return;
