@@ -140,3 +140,12 @@
     transform: translateY(0);
   }
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #16a34a; }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: #22c55e transparent; }
