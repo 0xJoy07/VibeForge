@@ -30,7 +30,7 @@ export function ActiveDevices({ token }: { token: string }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setSessions(data);
+        setSessions(data.sessions || []);
       }
     } catch (err) {
       console.error(err);

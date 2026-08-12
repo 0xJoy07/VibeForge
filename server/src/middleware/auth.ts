@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { supabaseAdmin } from "../lib/supabase-admin.js";
 import { prisma } from "../db.js";
 import { createHash } from "crypto";
+import { trackSessionImpl } from "./trackSession.js";
 
 export interface AuthUser {
   supabaseId: string;
@@ -38,7 +39,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   req.user = result.user;
 
   // Track session asynchronously to avoid blocking the request
-  import("./trackSession.js").then(m => m.trackSessionImpl(req)).catch(console.error);
+  trackSessionImpl(req).catch(console.error);
 
   next();
 }
