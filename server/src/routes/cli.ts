@@ -96,4 +96,21 @@ router.delete("/api/cli/token/:id", requireAuth, requirePro, async (req, res, ne
   }
 });
 
+/**
+ * GET /api/cli/validate
+ * Validates a CLI token and returns user details.
+ */
+router.get("/api/cli/validate", requireAuth, async (req, res, next) => {
+  try {
+    const { supabaseId, email, dbId } = req.user!;
+    if (!dbId) {
+      res.status(404).json({ error: "User not synced." });
+      return;
+    }
+    res.json({ id: dbId, supabaseId, email });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
