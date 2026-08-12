@@ -1,11 +1,12 @@
 {
   "name": "@0xjoy/vibeforge",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "bin": {
     "vibeforge": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "main": "./dist/index.js",
   "scripts": {
