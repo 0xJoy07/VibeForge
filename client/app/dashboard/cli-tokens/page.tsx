@@ -22,7 +22,8 @@ export default async function CliTokensPage() {
       headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
     });
     if (res.ok) {
-      tokens = await res.json();
+      const data = await res.json();
+      tokens = data.tokens || [];
     }
   } catch (err) {
     console.error(err);

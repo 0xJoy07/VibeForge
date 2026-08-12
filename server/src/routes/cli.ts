@@ -70,6 +70,25 @@ router.get("/api/cli/tokens", requireAuth, requirePro, async (req, res, next) =>
 });
 
 /**
+ * DELETE /api/cli/tokens
+ * Revoke all CLI tokens for the authenticated user.
+ */
+router.delete("/api/cli/tokens", requireAuth, requirePro, async (req, res, next) => {
+  try {
+    const { dbId } = req.user!;
+    if (!dbId) {
+      res.status(404).json({ error: "User not synced." });
+      return;
+    }
+
+    await prisma.cliToken.deleteMany({ where: { userId: dbId } });
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * DELETE /api/cli/token/:id
  * Revoke a specific CLI token.
  */

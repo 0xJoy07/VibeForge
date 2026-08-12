@@ -7,7 +7,7 @@ export async function generateTokenAction() {
   const session = await requireUser();
   if (!session.dbUser) throw new Error("Unauthorized");
   
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/tokens`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/token`, {
     method: "POST",
     headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
   });
@@ -22,7 +22,7 @@ export async function revokeTokenAction(tokenId: string) {
   const session = await requireUser();
   if (!session.dbUser) throw new Error("Unauthorized");
   
-  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/tokens/${tokenId}`, {
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/token/${tokenId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
   });
