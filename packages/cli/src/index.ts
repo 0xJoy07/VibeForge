@@ -5,8 +5,7 @@ import chalk from "chalk";
 import { loginCommand } from "./commands/login";
 import { scanCommand } from "./commands/scan";
 import { clearToken, getStoredToken, validateTokenWithServer } from "./auth";
-
-const API_URL = "http://localhost:4000";
+import { API_BASE_URL, WEB_BASE_URL } from "./config";
 
 const program = new Command();
 
@@ -20,7 +19,7 @@ program
   .description("Authenticate the CLI with your VibeForge account")
   .action(async () => {
     try {
-      await loginCommand(API_URL);
+      await loginCommand(WEB_BASE_URL);
     } catch (err) {
       console.error(chalk.red("Login failed."));
       process.exit(1);
@@ -42,7 +41,7 @@ program
   .option("--fix", "Attempt to automatically apply AI-suggested fixes")
   .action(async (pathStr, options) => {
     const targetPath = pathStr || ".";
-    await scanCommand(targetPath, options, API_URL);
+    await scanCommand(targetPath, options, API_BASE_URL);
   });
 
 program
@@ -54,7 +53,7 @@ program
       console.log(chalk.red("Not logged in. Run 'vibeforge login'."));
       process.exit(1);
     }
-    const user = await validateTokenWithServer(API_URL, token);
+    const user = await validateTokenWithServer(API_BASE_URL, token);
     if (user) {
       console.log(chalk.green(`Logged in as ${user.email}`));
       console.log(`Pro status: ${user.isPro ? chalk.green("Active") : chalk.red("Inactive")}`);

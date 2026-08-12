@@ -1,10 +1,13 @@
 {
-  "name": "@0xJoy07/vibeforge",
-  "version": "0.1.0",
-  "bin": { "vibeforge": "./dist/index.js" },
-  "files": ["dist"],
+  "name": "@0xjoy07/vibeforge",
+  "version": "0.1.2",
+  "bin": {
+    "vibeforge": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.js",
-
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "tsc"
