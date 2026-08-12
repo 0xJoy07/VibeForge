@@ -1,32 +1,14 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="./assets/logo-light.svg">
-  <img alt="VibeForge" width="480" src="./client/public/logo.png">
+  <img width="200" height="200" alt="Vibe-Forge" align="center" src="https://github.com/user-attachments/assets/f696b002-222f-4641-b15b-08c464aafdb1" />
 </picture>
-
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="60" viewBox="0 0 480 60">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#7c3aed"/>
-      <stop offset="100%" style="stop-color:#06b6d4"/>
-    </linearGradient>
-  </defs>
-  <rect width="480" height="60" rx="8" fill="#0f0f11"/>
-  <text x="50%" y="38" font-family="monospace" font-size="26" font-weight="bold"
-        fill="url(#grad)" text-anchor="middle" letter-spacing="3">
-    VibeForge
-    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite"/>
-  </text>
-</svg>
 
 ### Your codebase has opinions. VibeForge reads them.
 
-[![npm version](https://img.shields.io/npm/v/vibeforge?style=flat-square&color=7c3aed)](https://www.npmjs.com/package/vibeforge)
-[![License: MIT](https://img.shields.io/badge/license-MIT-06b6d4?style=flat-square)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/vibeforge?style=flat-square&color=7c3aed)](https://www.npmjs.com/package/@0xjoy/vibeforge)
 [![GitHub Stars](https://img.shields.io/github/stars/vibrforge/neuronexus?style=flat-square&color=f59e0b)](https://github.com/vibrforge/neuronexus/stargazers)
-[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000?style=flat-square&logo=vercel)](https://vercel.com)
+[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000?style=flat-square&logo=vercel)](https://vibeforgescanner.vercel.app)
 
 </div>
 
@@ -42,10 +24,7 @@
 ---
 
 ## Demo
-
-![demo](./assets/demo.gif)
-
-> Replace `./assets/demo.gif` with a screen recording of a scan run.
+<img width="1898" height="936" alt="Recording 2026-08-12 170913 - Trim" src="https://github.com/user-attachments/assets/a2a8ae34-dc1b-4d1f-a102-5fc479623f59" />
 
 ---
 
