@@ -1,5 +1,5 @@
 {
-  "name": "@0xjoy07/vibeforge",
+  "name": "@0xjoy/vibeforge",
   "version": "0.1.4",
   "bin": {
     "vibeforge": "./dist/index.js"
@@ -10,7 +10,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc && node -e \"const fs=require('fs');const f='dist/index.js';const c=fs.readFileSync(f,'utf8');if(!c.startsWith('#!/usr/bin/env node')){fs.writeFileSync(f,'#!/usr/bin/env node\\n'+c)}\""
   },
   "dependencies": {
     "chalk": "latest",
