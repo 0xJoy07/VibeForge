@@ -7,7 +7,6 @@
 ### Your codebase has opinions. VibeForge reads them.
 
 [![npm version](https://img.shields.io/npm/v/@0xjoy/vibeforge?style=flat-square&color=7c3aed)](https://www.npmjs.com/package/@0xjoy/vibeforge)
-[![GitHub Stars](https://img.shields.io/github/stars/vibrforge/neuronexus?style=flat-square&color=f59e0b)](https://github.com/[![npm version](https://img.shields.io/npm/v/vibeforge?style=flat-square&color=7c3aed)](https://www.npmjs.com/package/@0xjoy/vibeforge)
 [![GitHub Stars](https://img.shields.io/github/stars/0xJoy07/VibeForge?style=flat-square&color=f59e0b)](https://github.com/0xJoy07/VibeForge))
 [![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000?style=flat-square&logo=vercel)](https://vibeforgescanner.vercel.app)
 
