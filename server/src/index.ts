@@ -8,6 +8,7 @@ import reviewRouter from "./routes/review.js";
 import authRouter from "./routes/auth.js";
 import dashboardRouter from "./routes/dashboard.js";
 import cliRouter from "./routes/cli.js";
+import sessionsRouter from "./routes/sessions.js";
 import { paymentsRouter } from "./payments/index.js";
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(reviewRouter);
 app.use(authRouter);
 app.use(dashboardRouter);
 app.use(cliRouter);
+app.use(sessionsRouter);
 app.use(paymentsRouter);
 
 // ── Global Error Handler (must be last) ───────────────────────────────────────

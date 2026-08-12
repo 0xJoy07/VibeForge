@@ -36,6 +36,10 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 
   req.user = result.user;
+
+  // Track session asynchronously to avoid blocking the request
+  import("./trackSession.js").then(m => m.trackSessionImpl(req)).catch(console.error);
+
   next();
 }
 

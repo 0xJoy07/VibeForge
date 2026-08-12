@@ -20,6 +20,7 @@ model User {
   subscription Subscription?
   scans        ScanHistory[]
   cliTokens    CliToken[]
+  deviceSessions DeviceSession[]
 }
 
 model Subscription {
@@ -66,6 +67,21 @@ model CliToken {
   expiresAt  DateTime
   lastUsedAt DateTime?
   createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model DeviceSession {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  deviceName String
+  browser    String
+  os         String
+  ip         String
+  type       String   @default("browser")
+  lastActive DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   @@index([userId])
 }
