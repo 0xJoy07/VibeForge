@@ -19,7 +19,7 @@ export default function CliAuthClient({
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    fetch(`http://localhost:${port}/callback`, {
+    fetch(`http://127.0.0.1:${port}/callback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, state: stateParam }),

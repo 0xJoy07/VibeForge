@@ -11,7 +11,6 @@ const chalk_1 = __importDefault(require("chalk"));
 const auth_1 = require("../auth");
 async function loginCommand(apiUrl) {
     const state = crypto_1.default.randomBytes(16).toString("hex");
-    const port = 9876;
     return new Promise((resolve, reject) => {
         const server = http_1.default.createServer((req, res) => {
             // Handle CORS for local POSTs from the browser
@@ -47,7 +46,7 @@ async function loginCommand(apiUrl) {
                         console.log(chalk_1.default.green("\n✔ Authenticated successfully!\n"));
                         server.close();
                         clearTimeout(timeoutId);
-                        resolve();
+                        setTimeout(() => resolve(), 500);
                     }
                     catch (err) {
                         res.writeHead(400);
@@ -60,14 +59,16 @@ async function loginCommand(apiUrl) {
                 res.end();
             }
         });
-        server.listen(port, async () => {
+        server.listen(0, async () => {
+            const address = server.address();
+            const actualPort = typeof address === "string" ? 9876 : address?.port || 9876;
             console.log(chalk_1.default.blue("Opening browser for authentication..."));
             try {
-                await (0, open_1.default)(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
+                await (0, open_1.default)(`${apiUrl}/cli-auth?port=${actualPort}&state=${state}`);
             }
             catch (err) {
                 console.error(chalk_1.default.red("Failed to open browser. Please navigate to:"));
-                console.log(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
+                console.log(`${apiUrl}/cli-auth?port=${actualPort}&state=${state}`);
             }
         });
         const timeoutId = setTimeout(() => {

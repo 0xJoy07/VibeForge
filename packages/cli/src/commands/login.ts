@@ -6,7 +6,6 @@ import { saveToken } from "../auth";
 
 export async function loginCommand(apiUrl: string): Promise<void> {
   const state = crypto.randomBytes(16).toString("hex");
-  const port = 9876;
 
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
@@ -42,12 +41,12 @@ export async function loginCommand(apiUrl: string): Promise<void> {
 
             saveToken(data.token);
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: true }));
-            
-            console.log(chalk.green("\n✔ Authenticated successfully!\n"));
-            server.close();
-            clearTimeout(timeoutId);
-            resolve();
+            res.end(JSON.stringify({ success: true }), () => {
+              console.log(chalk.green("\n✔ Authenticated successfully!\n"));
+              server.close();
+              clearTimeout(timeoutId);
+              setTimeout(() => resolve(), 1000);
+            });
           } catch (err) {
             res.writeHead(400);
             res.end(JSON.stringify({ error: "Invalid JSON body." }));
@@ -59,13 +58,15 @@ export async function loginCommand(apiUrl: string): Promise<void> {
       }
     });
 
-    server.listen(port, async () => {
+    server.listen(0, "127.0.0.1", async () => {
+      const address = server.address();
+      const actualPort = typeof address === "string" ? 9876 : address?.port || 9876;
       console.log(chalk.blue("Opening browser for authentication..."));
       try {
-        await open(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
+        await open(`${apiUrl}/cli-auth?port=${actualPort}&state=${state}`);
       } catch (err) {
         console.error(chalk.red("Failed to open browser. Please navigate to:"));
-        console.log(`${apiUrl}/cli-auth?port=${port}&state=${state}`);
+        console.log(`${apiUrl}/cli-auth?port=${actualPort}&state=${state}`);
       }
     });
 

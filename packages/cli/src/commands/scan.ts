@@ -31,7 +31,8 @@ export async function scanCommand(dir: string, options: any, apiUrl: string): Pr
   const user = await validateTokenWithServer(apiUrl, token);
   if (!user) {
     console.log(chalk.red("Session expired or invalid. Run 'vibeforge login' again."));
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
 
   const absDir = path.resolve(dir);

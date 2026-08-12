@@ -1,6 +1,6 @@
 {
   "name": "@0xjoy07/vibeforge",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "bin": {
     "vibeforge": "./dist/index.js"
   },
