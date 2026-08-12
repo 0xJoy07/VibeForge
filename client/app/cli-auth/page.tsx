@@ -51,6 +51,7 @@ export default async function CliAuthPage({
 
   // Generate plain token and hand it off to the client component to POST
   let plainToken = "";
+  let errorMessage = "";
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/token`, {
       method: "POST",
@@ -59,9 +60,31 @@ export default async function CliAuthPage({
     if (res.ok) {
       const data = await res.json();
       plainToken = data.token;
+    } else {
+      const errorData = await res.json();
+      errorMessage = errorData.error || "Failed to generate token.";
     }
   } catch (err) {
     console.error("Failed to generate token", err);
+    errorMessage = "Internal server error while generating token.";
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black p-4">
+        <div className="max-w-md w-full border border-white/10 bg-white/5 p-8 rounded-2xl text-center">
+          <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Token Generation Failed</h2>
+          <p className="text-zinc-400 mb-6">{errorMessage}</p>
+          <Link
+            href="/dashboard/cli-tokens"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00c97a] px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-[#00b06b]"
+          >
+            Manage Tokens
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
