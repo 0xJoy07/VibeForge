@@ -21,6 +21,7 @@ export function ActiveDevices({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
 
   const fetchSessions = async () => {
+    console.log('token:', token);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sessions`, {
         headers: {

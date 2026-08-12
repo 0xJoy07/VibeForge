@@ -10,6 +10,7 @@ export async function trackSessionImpl(req: Request) {
   if (!req.user || !req.user.dbId) {
     return;
   }
+  console.log('trackSession fired for user:', req.user.dbId);
   
   try {
     const userAgent = req.headers["user-agent"] || "";
@@ -27,7 +28,7 @@ export async function trackSessionImpl(req: Request) {
     
     // IP extraction
     const forwardedFor = req.headers["x-forwarded-for"] as string;
-    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : req.ip || "Unknown IP";
+    const ip = forwardedFor?.split(',')[0].trim() ?? req.ip ?? 'unknown';
 
     // Upsert logic. Find existing session for this exact device configuration
     const existing = await prisma.deviceSession.findFirst({
