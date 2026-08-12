@@ -9,6 +9,7 @@ import ScoreRingEditor from "@/components/ScoreRingEditor";
 import EditorIssueList from "@/components/EditorIssueList";
 import SkeletonReview from "@/components/SkeletonReview";
 import type { ScanResult } from "@/lib/analysis";
+import { createClient } from "@/lib/supabase/client";
 
 const sample = `const apiKey = "sk_live_hardcoded_secret";
 
@@ -30,9 +31,14 @@ export default function EditorPage() {
     setResult(null);
     setQuotaError(false);
     try {
-      const response = await fetch("/api/review-code", { 
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review-code`, { 
         method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? ""}`
+        }, 
         body: JSON.stringify({ code, language }) 
       });
       

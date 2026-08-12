@@ -2,8 +2,6 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
-import { errorHandler } from "./middleware/errorHandler.js";
-
 import healthRouter from "./routes/health.js";
 import scanRouter from "./routes/scan.js";
 import reviewRouter from "./routes/review.js";
@@ -18,11 +16,7 @@ const port = Number(process.env.PORT ?? 4000);
 // ── Global Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      process.env.CLIENT_URL ?? "http://localhost:3000",
-    ].filter(Boolean),
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
   })
 );
@@ -43,7 +37,9 @@ app.use(cliRouter);
 app.use(paymentsRouter);
 
 // ── Global Error Handler (must be last) ───────────────────────────────────────
-app.use(errorHandler);
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  res.status(500).json({ error: err.message });
+});
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(port, () => {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createHash, randomBytes } from "crypto";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth, requirePro } from "../middleware/auth.js";
 import { prisma } from "../db.js";
 
 const router = Router();
@@ -12,7 +12,7 @@ const TOKEN_TTL_DAYS = 90;
  * Generate a new CLI token for the authenticated user.
  * Returns the plain token ONCE — only the hash is stored.
  */
-router.post("/api/cli/token", requireAuth, async (req, res, next) => {
+router.post("/api/cli/token", requireAuth, requirePro, async (req, res, next) => {
   try {
     const { dbId } = req.user!;
     if (!dbId) {
@@ -49,7 +49,7 @@ router.post("/api/cli/token", requireAuth, async (req, res, next) => {
  * GET /api/cli/tokens
  * List all CLI tokens for the authenticated user (no plain tokens, only metadata).
  */
-router.get("/api/cli/tokens", requireAuth, async (req, res, next) => {
+router.get("/api/cli/tokens", requireAuth, requirePro, async (req, res, next) => {
   try {
     const { dbId } = req.user!;
     if (!dbId) {
@@ -73,7 +73,7 @@ router.get("/api/cli/tokens", requireAuth, async (req, res, next) => {
  * DELETE /api/cli/token/:id
  * Revoke a specific CLI token.
  */
-router.delete("/api/cli/token/:id", requireAuth, async (req, res, next) => {
+router.delete("/api/cli/token/:id", requireAuth, requirePro, async (req, res, next) => {
   try {
     const { dbId } = req.user!;
     const id = req.params["id"] as string;

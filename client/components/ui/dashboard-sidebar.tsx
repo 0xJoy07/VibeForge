@@ -58,7 +58,7 @@ const navGroups: NavGroupData[] = [
 ];
 
 const bottomItems: NavItemData[] = [
-  { id: 'settings', title: 'Settings', icon: Settings, href: '/settings' },
+  { id: 'settings', title: 'Settings', icon: Settings, href: '/dashboard/settings' },
 ];
 
 function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect?: (ws: string) => void }) {
@@ -72,18 +72,18 @@ function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect
     <div className="relative">
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between px-2 py-2 mb-4 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors select-none group"
+        className="flex items-center justify-between px-2 py-2 mb-4 rounded-lg hover:bg-white/5 cursor-pointer transition-colors select-none group"
       >
         <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-8 h-8 rounded-[6px] bg-[#00c97a] text-black flex items-center justify-center font-bold text-[13px] shadow-sm">
             <Code className="w-4 h-4" />
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-[13px] font-medium leading-none mb-1 text-foreground truncate max-w-[120px]">{current}</span>
-            <span className="text-[11px] text-muted-foreground leading-none">VibeForge</span>
+            <span className="text-[13px] font-medium leading-none mb-1 text-white truncate max-w-[120px]">{current}</span>
+            <span className="text-[11px] text-zinc-400 leading-none">VibeForge</span>
           </div>
         </Link>
-        <ChevronDown className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground/70 transition-colors shrink-0" strokeWidth={1.5} />
+        <ChevronDown className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors shrink-0" strokeWidth={1.5} />
       </div>
 
       {isOpen && (
@@ -94,7 +94,7 @@ function WorkspaceSwitcher({ selected, onSelect }: { selected?: string, onSelect
               <div 
                 key={ws}
                 onClick={() => { handleSelect(ws); setIsOpen(false); }}
-                className={`px-3 py-2 mx-1 text-[13px] rounded-md cursor-pointer transition-colors ${current === ws ? 'bg-[#00c97a]/10 text-[#00c97a] font-medium' : 'text-foreground/80 hover:bg-black/5 dark:hover:bg-white/5'}`}
+                className={`px-3 py-2 mx-1 text-[13px] rounded-md cursor-pointer transition-colors ${current === ws ? 'bg-[#00c97a]/10 text-[#00c97a] font-medium' : 'text-zinc-300 hover:bg-white/10 hover:text-white'}`}
               >
                 {ws}
               </div>
@@ -137,7 +137,7 @@ function NavItem({
         className={`group flex items-center justify-between py-[7px] rounded-r-[6px] cursor-pointer transition-colors duration-150 select-none border-l-2
           ${isActive 
             ? 'border-green-500 bg-green-500/10 text-green-400 pl-3' 
-            : 'text-muted-foreground border-transparent hover:bg-white/5 hover:text-white'
+            : 'text-zinc-400 border-transparent hover:bg-white/10 hover:text-white'
           }
         `}
         style={{ paddingLeft: isActive ? undefined : `${level * 12 + 10}px`, paddingRight: '10px' }}
@@ -146,7 +146,7 @@ function NavItem({
         <div className="flex items-center gap-2.5">
           <item.icon 
             className={`w-[16px] h-[16px] transition-colors
-              ${isActive ? 'text-green-400' : 'text-muted-foreground/70 group-hover:text-white'}
+              ${isActive ? 'text-green-400' : 'text-zinc-500 group-hover:text-white'}
             `} 
             strokeWidth={1.5} 
           />
@@ -157,7 +157,7 @@ function NavItem({
         
         <div className="flex items-center gap-2">
           {item.shortcut && (
-             <kbd className="hidden group-hover:inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-medium font-mono text-muted-foreground/60 bg-background/50 border border-border/50 rounded-[4px] shadow-xs">
+             <kbd className="hidden group-hover:inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-medium font-mono text-zinc-400 bg-white/5 border border-white/10 rounded-[4px] shadow-xs">
                {item.shortcut}
              </kbd>
           )}
@@ -168,7 +168,7 @@ function NavItem({
           )}
           {hasChildren && (
             <ChevronRight 
-              className={`w-3.5 h-3.5 text-muted-foreground/50 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} 
+              className={`w-3.5 h-3.5 text-zinc-500 group-hover:text-white transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} 
               strokeWidth={2}
             />
           )}
@@ -230,7 +230,7 @@ export function SidebarNav({
         {navGroups.map((group, idx) => (
           <div key={idx} className="flex flex-col gap-0.5">
             {group.heading && (
-              <span className="px-2.5 mb-1 text-[11px] font-semibold tracking-wider text-muted-foreground/50 uppercase mt-2">
+              <span className="px-2.5 mb-1 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase mt-2">
                 {group.heading}
               </span>
             )}
@@ -246,7 +246,7 @@ export function SidebarNav({
         ))}
       </div>
 
-      <div className="mt-auto pt-4 border-t border-white/10 flex flex-col gap-0.5">
+      <div className="mt-auto pt-4 border-t border-white/10 flex flex-col gap-0.5 pb-10">
         {bottomItems.map(item => (
           <NavItem 
             key={item.id} 

@@ -7,11 +7,38 @@ export const SYSTEM_PROMPT = `You are a senior engineer auditing a codebase. Ana
 Score each axis 0-100 (100 = perfect). Flag: hardcoded secrets, SQL injection risks, unused imports, copy-paste AI patterns (repetitive boilerplate, inconsistent naming), missing error handling, N+1 queries, deeply nested logic, poor project structure.`;
 
 export function extractJson(text) {
-  const cleaned = text.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
+  let cleaned = text.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
   const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) throw new Error("Claude response did not contain a JSON object.");
-  return JSON.parse(cleaned.slice(start, end + 1));
+  let end = cleaned.lastIndexOf("}");
+
+  if (start === -1) {
+    console.error("Failed to parse AI response. Raw text:", text);
+    throw new Error("AI response did not contain a valid JSON object.");
+  }
+
+  // If there's no closing brace at all, just take the rest of the string
+  if (end === -1 || end <= start) {
+    end = cleaned.length - 1;
+  }
+
+  const jsonString = cleaned.slice(start, end + 1);
+
+  try {
+    return JSON.parse(jsonString);
+  } catch (err) {
+    // It's likely truncated. Because we sliced up to the last '}', 
+    // it usually means we have an unclosed 'issues' array and the root object.
+    try {
+      return JSON.parse(jsonString + "]}");
+    } catch (err2) {
+      try {
+        return JSON.parse(jsonString + "}");
+      } catch (err3) {
+        console.error("Failed to parse JSON string:", jsonString);
+        throw new Error("AI response contained invalid JSON syntax.");
+      }
+    }
+  }
 }
 
 export function demoResult(repoUrl = "https://github.com/OWASP/WebGoat") {

@@ -1,17 +1,38 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { extractJson, SYSTEM_PROMPT } from "./analysis.js";
 
 export async function reviewPrompt(content, apiKey) {
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured.");
-  const anthropic = new Anthropic({ apiKey });
-  const stream = anthropic.messages.stream({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    temperature: 0,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content }]
+  if (!apiKey) throw new Error("OPENROUTER_API_KEY is not configured.");
+  
+  const openai = new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: apiKey,
+    defaultHeaders: {
+      "HTTP-Referer": process.env.CLIENT_URL || "http://localhost:3000",
+      "X-Title": "VibeForge",
+    }
   });
-  const message = await stream.finalMessage();
-  const text = message.content.filter((block) => block.type === "text").map((block) => block.text).join("\n");
-  return extractJson(text);
+
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "openrouter/free",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: content }
+        ],
+        temperature: 0.1, // slightly higher to avoid deterministic bad loops
+        max_tokens: 2000,
+      });
+
+      const text = response.choices[0]?.message?.content || "";
+      return extractJson(text);
+    } catch (error) {
+      console.error(`[AI attempt ${attempt}] failed:`, error.message);
+      lastError = error;
+    }
+  }
+  
+  throw new Error(`AI Request failed after 3 attempts: ${lastError.message}`);
 }

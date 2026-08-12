@@ -72,7 +72,7 @@ export default function Navbar() {
         
         {/* Right */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="https://github.com/vibeforge/vibeforge" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-[6px] border border-white/[0.08] px-[10px] py-[6px] text-[13.5px] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
+          <a href="https://github.com/0xJoy07/VibeForge" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-[6px] border border-white/[0.08] px-[10px] py-[6px] text-[13.5px] text-white/[0.55] hover:text-white hover:bg-white/[0.05] transition duration-150">
             <Star className="h-3.5 w-3.5" />
             <span className="tracking-[-0.01em]">Star</span>
           </a>

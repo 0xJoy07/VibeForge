@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { syncUserToPrisma } from '@/lib/sync-user';
+
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -39,18 +39,22 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const dbUser = await syncUserToPrisma(data.user);
-    
-    if (data.session?.access_token) {
-      const { getDeviceInfo, registerSession } = await import('@/lib/device');
-      const encoder = new TextEncoder();
-      const tokenData = encoder.encode(data.session.access_token);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', tokenData);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashedToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
-      const deviceInfo = getDeviceInfo(request);
-      await registerSession(dbUser.id, hashedToken, deviceInfo);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync-user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.session?.access_token ?? ""}`
+      },
+      body: JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || data.user.email?.split('@')[0],
+        avatar: data.user.user_metadata?.avatar_url,
+        deviceInfo: request.headers.get("user-agent") ?? "Unknown Device"
+      })
+    });
+    if (!res.ok) {
+      console.error("Failed to sync user to backend", await res.text());
     }
   } catch (e) {
     console.error('syncUserToPrisma or session registration failed:', e);

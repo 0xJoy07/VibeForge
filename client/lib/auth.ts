@@ -1,40 +1,41 @@
 import { createHash } from "crypto";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import type { User as PrismaUser } from "@prisma/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { razorpay } from "@/lib/razorpay";
 
 export interface AuthSession {
+  session: any;
   supabaseUser: SupabaseUser;
-  dbUser: PrismaUser | null;
+  dbUser: { id: string; name?: string; email?: string; avatar?: string } | null;
 }
 
 /**
  * getUser — Server-side only.
- * Reads the active Supabase session from cookies, then looks up the Prisma User row.
+ * Reads the active Supabase session from cookies.
  * Returns null if there is no active session.
  */
 export async function getUser(): Promise<AuthSession | null> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return null;
 
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseId: user.id },
-  });
-
-  return { supabaseUser: user, dbUser };
+  return { 
+    session, 
+    supabaseUser: user, 
+    dbUser: { 
+      id: user.id,
+      name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
+      email: user.email,
+      avatar: user.user_metadata?.avatar_url
+    } 
+  };
 }
 
 /**
  * requireUser — Server-side only.
  * Like getUser but throws a redirect to /login if there is no active session.
- * Use in Server Components and Route Handlers that need auth.
  */
 export async function requireUser(): Promise<AuthSession> {
   const session = await getUser();
@@ -43,37 +44,21 @@ export async function requireUser(): Promise<AuthSession> {
 }
 
 /**
- * isPro — Checks whether a Prisma User (by dbId) has an active Pro subscription.
- * An active subscription must have status === "active" and currentPeriodEnd in the future.
+ * isPro — Checks whether a User has an active Pro subscription.
  */
 export async function isPro(userId: string): Promise<boolean> {
   try {
-    const sub = await prisma.subscription.findUnique({ where: { userId } });
-    if (!sub) return false;
+    const supabase = await createSupabaseServerClient();
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (sub.status === 'active' && sub.currentPeriodEnd && sub.currentPeriodEnd > new Date()) {
-      return true;
-    }
-    
-    if (!razorpay) return false;
-    
-    const razorSub = await razorpay.subscriptions.fetch(sub.razorpaySubId);
-    
-    if (razorSub.status === 'active') {
-      await prisma.subscription.update({
-        where: { userId },
-        data: {
-          status: 'active',
-          currentPeriodEnd: new Date((razorSub as any).current_end * 1000)
-        }
-      });
-      return true;
-    }
-    
-    await prisma.subscription.update({
-      where: { userId },
-      data: { status: razorSub.status }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/status`, {
+      headers: { Authorization: `Bearer ${session?.access_token ?? ""}` }
     });
+    
+    if (res.ok) {
+      const data = await res.json();
+      return data.subscribed === true;
+    }
     
     return false;
   } catch {

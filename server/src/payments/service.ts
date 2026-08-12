@@ -59,7 +59,7 @@ export async function createSubscription(
       const customer = await razorpay.customers.create({
         name: name ?? email,
         email,
-        fail_existing: "0",
+        fail_existing: 0,
       }) as any;
       customerId = customer.id as string;
     } catch (err: any) {

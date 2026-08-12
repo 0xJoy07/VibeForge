@@ -9,6 +9,7 @@ import IssueTable from "@/components/IssueTable";
 import ScoreRing from "@/components/ScoreRing";
 import ScanSkeleton from "@/components/scanner/ScanSkeleton";
 import { demoResult, type ScanResult } from "@/lib/analysis";
+import { createClient } from "@/lib/supabase/client";
 
 function ScannerContent() {
   const searchParams = useSearchParams();
@@ -25,11 +26,19 @@ function ScannerContent() {
     setQuotaError(false);
     setResult(null);
     try {
-      const response = await fetch("/api/scan-repo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl: url.trim() }),
-      });
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/scan-repo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token ?? ""}`,
+          },
+          body: JSON.stringify({ repoUrl: url.trim() }),
+        }
+      );
       
       if (response.status === 429) {
         setQuotaError(true);

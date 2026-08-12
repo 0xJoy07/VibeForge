@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, Loader2, Zap } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface PlanCardProps {
   initialIsPro: boolean;
@@ -22,7 +23,11 @@ export function PlanCard({ initialIsPro }: PlanCardProps) {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const res = await fetch("/api/payments/status");
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/status`, {
+          headers: { Authorization: `Bearer ${session?.access_token ?? ""}` }
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.subscribed) {
@@ -46,7 +51,12 @@ export function PlanCard({ initialIsPro }: PlanCardProps) {
   const handleCancel = async () => {
     setIsCancelling(true);
     try {
-      const res = await fetch("/api/payments/cancel", { method: "POST" });
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/cancel`, { 
+        method: "POST",
+        headers: { Authorization: `Bearer ${session?.access_token ?? ""}` }
+      });
       if (res.ok) {
         setStatus("cancelled");
         setShowCancelConfirm(false);

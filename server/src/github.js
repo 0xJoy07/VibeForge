@@ -30,7 +30,11 @@ function priority(path) {
 export async function fetchRepoFiles(repoUrl) {
   const { owner, repo } = parseGitHubUrl(repoUrl);
   const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`;
-  const treeResponse = await fetch(treeUrl, { headers: { Accept: "application/vnd.github+json", "User-Agent": "VibeForge" } });
+  const headers = { Accept: "application/vnd.github+json", "User-Agent": "VibeForge" };
+  if (process.env.GITHUB_TOKEN) {
+    headers["Authorization"] = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  const treeResponse = await fetch(treeUrl, { headers });
   if (!treeResponse.ok) throw new Error(`GitHub tree request failed with ${treeResponse.status}.`);
   const treeBody = await treeResponse.json();
   const paths = (treeBody.tree ?? [])
@@ -41,7 +45,11 @@ export async function fetchRepoFiles(repoUrl) {
 
   const files = await Promise.all(paths.map(async (path) => {
     const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${path}`;
-    const response = await fetch(rawUrl, { headers: { "User-Agent": "VibeForge" } });
+    const reqHeaders = { "User-Agent": "VibeForge" };
+    if (process.env.GITHUB_TOKEN) {
+      reqHeaders["Authorization"] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    }
+    const response = await fetch(rawUrl, { headers: reqHeaders });
     if (!response.ok) return null;
     return { path, content: await response.text() };
   }));

@@ -1,5 +1,4 @@
-import { requireUser, getFingerprintFromHeaders, isPro } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireUser, getFingerprintFromHeaders } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { BackNav } from "@/components/BackNav";
@@ -19,27 +18,24 @@ export default async function BillingPage() {
     return <div>User not found in database.</div>;
   }
 
-  const proStatus = await isPro(userId);
-  
-  const headersList = await headers();
-  const fingerprint = getFingerprintFromHeaders(headersList);
-  
-  const today = new Date().toISOString().split('T')[0];
+  let proStatus = false;
+  let scanCount = 0;
+  let scans = [];
 
-  const quota = await prisma.dailyQuota.findFirst({
-    where: {
-      fingerprint,
-      date: today
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, {
+      headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      proStatus = data.quota?.isPro ?? false;
+      scans = data.scans ?? [];
+      // To properly get scanCount, would need another endpoint, mocking for now:
+      scanCount = 0;
     }
-  });
-  
-  const scanCount = quota?.scanCount ?? 0;
-
-  const scans = await prisma.scanHistory.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: 20
-  });
+  } catch (err) {
+    console.error(err);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#06110b] text-white">

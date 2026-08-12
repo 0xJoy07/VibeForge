@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/auth";
 import { Terminal, Shield, Check, Laptop, Clock, SearchCode, Code2, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { CopyCommand } from "@/components/CopyCommand";
-import { prisma } from "@/lib/prisma";
 import { SubscribedToast } from "@/components/SubscribedToast";
 
 export default async function DashboardPage() {
@@ -14,15 +13,22 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Fetch active session and cli token
-  const activeSession = await prisma.activeSession.findFirst({
-    where: { userId: dbUser.id }
-  });
+  let activeSession: any = null;
+  let cliToken: any = null;
+  let scans: any[] = [];
   
-  const cliToken = await prisma.cliToken.findFirst({
-    where: { userId: dbUser.id },
-    orderBy: { createdAt: "desc" }
-  });
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, {
+      headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      scans = data.scans ?? [];
+      // activeSession and cliToken might need separate endpoints later
+    }
+  } catch (err) {
+    console.error(err);
+  }
 
   return (
     <div className="flex flex-col max-w-5xl mx-auto w-full gap-8">
@@ -37,12 +43,12 @@ export default async function DashboardPage() {
         <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-green-500/30 hover:bg-white/5 transition-all duration-200 cursor-default flex flex-col relative overflow-hidden group h-full">
           <Terminal className="absolute top-6 right-6 w-16 h-16 text-green-500/10 group-hover:text-green-500/20 transition-colors" />
           <h3 className="text-sm font-medium text-zinc-400 mb-1 z-10">Total Scans</h3>
-          <p className="text-3xl font-bold text-white z-10">12</p>
+          <p className="text-3xl font-bold text-white z-10">{scans.length}</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-green-500/30 hover:bg-white/5 transition-all duration-200 cursor-default flex flex-col relative overflow-hidden group h-full">
           <Shield className="absolute top-6 right-6 w-16 h-16 text-amber-500/10 group-hover:text-amber-500/20 transition-colors" />
           <h3 className="text-sm font-medium text-zinc-400 mb-1 z-10">Issues Found</h3>
-          <p className="text-3xl font-bold text-white z-10">45</p>
+          <p className="text-3xl font-bold text-white z-10">{scans.reduce((sum: number, s: any) => sum + (s.issueCount || 0), 0)}</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-green-500/30 hover:bg-white/5 transition-all duration-200 cursor-default flex flex-col relative overflow-hidden group h-full">
           <Check className="absolute top-6 right-6 w-16 h-16 text-teal-500/10 group-hover:text-teal-500/20 transition-colors" />

@@ -1,5 +1,14 @@
 import { History } from "lucide-react";
-import type { ScanHistory } from "@prisma/client";
+
+export type ScanHistory = {
+  id: string;
+  createdAt: string | Date;
+  type: string;
+  repoUrl: string | null;
+  score: number | null;
+  grade: string | null;
+  issueCount: number;
+};
 
 interface ScanHistoryTableProps {
   scans: ScanHistory[];

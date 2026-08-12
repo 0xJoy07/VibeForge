@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { optionalAuth } from "../middleware/auth.js";
 import { checkQuota } from "../middleware/quota.js";
+// @ts-ignore
 import { reviewPrompt } from "../ai.js";
+// @ts-ignore
 import { buildFilesPrompt, fetchRepoFiles } from "../github.js";
+// @ts-ignore
 import { demoResult } from "../analysis.js";
 import { prisma } from "../db.js";
 
@@ -16,10 +19,10 @@ router.post("/api/scan-repo", optionalAuth, checkQuota, async (req, res, next) =
       return;
     }
 
-    let result;
+    let result: any;
 
     // Return demo result if no API key configured
-    if (repoUrl.includes("github.com/OWASP/WebGoat") && !process.env.GEMINI_API_KEY) {
+    if (repoUrl.includes("github.com/OWASP/WebGoat") && !process.env.OPENROUTER_API_KEY) {
       result = demoResult(repoUrl);
     } else {
       const files = await fetchRepoFiles(repoUrl);
@@ -27,7 +30,7 @@ router.post("/api/scan-repo", optionalAuth, checkQuota, async (req, res, next) =
         res.status(422).json({ error: "No supported source files were found." });
         return;
       }
-      result = await reviewPrompt(buildFilesPrompt(files), process.env.GEMINI_API_KEY!);
+      result = await reviewPrompt(buildFilesPrompt(files), process.env.OPENROUTER_API_KEY);
     }
 
     // Persist scan history for authenticated users
@@ -37,8 +40,8 @@ router.post("/api/scan-repo", optionalAuth, checkQuota, async (req, res, next) =
           userId: req.user.dbId,
           repoUrl,
           score: Math.round(
-            Object.values(result.scores).reduce((a, b) => a + b, 0) /
-              Object.values(result.scores).length
+            Object.values(result.scores as Record<string, number>).reduce((a, b) => a + b, 0) /
+              Object.values(result.scores as Record<string, number>).length
           ),
           grade: result.grade,
           issueCount: result.issues.length,

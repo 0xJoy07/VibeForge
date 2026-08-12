@@ -24,6 +24,7 @@ export default function PricingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAlreadyPro, setIsAlreadyPro] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const [statusLoaded, setStatusLoaded] = useState(false);
   const [user, setUser] = useState<{ email?: string; user_metadata?: { name?: string } } | null>(null);
 
@@ -45,7 +46,11 @@ export default function PricingPage() {
       setIsLoggedIn(true);
       setUser(user);
       try {
-        const res = await fetch("/api/payments/status");
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/payments/status`,
+          { headers: { Authorization: `Bearer ${session?.access_token ?? ""}` } }
+        );
         if (res.ok) {
           const data = await res.json() as { subscribed: boolean };
           setIsAlreadyPro(data.subscribed);
@@ -56,38 +61,51 @@ export default function PricingPage() {
     init();
   }, []);
 
+  function showToast(msg: string) {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 4000);
+  }
+
   async function handleSubscribe() {
     if (!isLoggedIn) { router.push("/login?next=/pricing"); return; }
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/payments/create-subscription", { method: "POST" });
-      const data = await res.json() as { orderId?: string; keyId?: string; amount?: number; currency?: string; error?: string };
+      const supabase = createClient();
+      const { data: { session: sess } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/payments/create-order`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${sess?.access_token ?? ""}` },
+        }
+      );
+      const data = await res.json() as { orderId?: string; amount?: number; currency?: string; keyId?: string; error?: string };
 
       if (!res.ok) {
-        alert(data.error ?? "Failed to create order.");
+        showToast("Something went wrong, please try again.");
         setIsProcessing(false);
         return;
       }
 
       if (!data.orderId) {
-        alert("Failed to create order.");
+        showToast("Something went wrong, please try again.");
         setIsProcessing(false);
         return;
       }
 
       if (typeof window === "undefined" || !window.Razorpay) {
-        alert("Failed to load payment gateway.");
+        showToast("Something went wrong, please try again.");
         setIsProcessing(false);
         return;
       }
 
       const rzp = new window.Razorpay({
         key: data.keyId,
+        order_id: data.orderId,
         amount: data.amount,
         currency: data.currency,
-        order_id: data.orderId,
         name: "VibeForge",
-        description: "Pro Plan — Monthly",
+        description: "Pro Plan — One-time Payment",
         image: "/favicon.ico",
         theme: { color: "#16a34a" },
         prefill: {
@@ -110,36 +128,52 @@ export default function PricingPage() {
       });
       rzp.open();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Something went wrong.");
+      showToast("Something went wrong, please try again.");
       setIsProcessing(false);
     }
   }
 
   async function verifyPayment(orderId: string, paymentId: string, signature: string) {
     try {
-      const res = await fetch("/api/payments/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          razorpay_order_id: orderId,
-          razorpay_payment_id: paymentId,
-          razorpay_signature: signature,
-        }),
-      });
+      const supabase = createClient();
+      const { data: { session: verifySess } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/payments/verify-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${verifySess?.access_token ?? ""}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            razorpay_order_id: orderId,
+            razorpay_payment_id: paymentId,
+            razorpay_signature: signature,
+          }),
+        }
+      );
       const data = await res.json();
       if (data.success) {
         window.location.href = "/dashboard?subscribed=true";
       } else {
-        alert("Payment verification failed. Contact support.");
+        showToast("Something went wrong, please try again.");
         setIsProcessing(false);
       }
     } catch {
-      alert("Payment verification error.");
+      showToast("Something went wrong, please try again.");
       setIsProcessing(false);
     }
   }
 
-  const ProCTA = (statusLoaded && isAlreadyPro) ? (
+  const ProCTA = !statusLoaded ? (
+    <button
+      disabled
+      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#00c97a] px-6 py-3 text-sm font-bold text-black opacity-70 cursor-not-allowed"
+    >
+      <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+    </button>
+  ) : isAlreadyPro ? (
     <Link
       href="/billing"
       className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#00c97a]/40 px-6 py-3 text-sm font-semibold text-[#00c97a] transition-colors hover:bg-[#00c97a]/10"
@@ -166,7 +200,7 @@ export default function PricingPage() {
 
       {/* Test-mode banner */}
       <div className="relative z-50 w-full bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-xs font-medium text-amber-300">
-        🧪 Test mode — use card <span className="font-mono font-bold">4111 1111 1111 1111</span>, expiry <span className="font-mono font-bold">12/29</span>, CVV <span className="font-mono font-bold">123</span>
+        🧪 Test mode <span className="font-mono font-bold">Use NetBanking and choose any bank to proceed with the pro version</span>
       </div>
 
       {/* Navbar */}
@@ -263,6 +297,13 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
+
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <XCircle className="w-5 h-5 text-red-500" />
+          <span className="font-medium">{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

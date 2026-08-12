@@ -1,5 +1,4 @@
 import { requireUser, isPro } from "@/lib/auth";
-import { generateCliToken } from "@/lib/cli-token";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import CliAuthClient from "./client-page";
@@ -45,7 +44,19 @@ export default async function CliAuthPage({
   }
 
   // Generate plain token and hand it off to the client component to POST
-  const plainToken = await generateCliToken(session.dbUser!.id);
+  let plainToken = "";
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cli/tokens`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.session.access_token ?? ""}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      plainToken = data.token;
+    }
+  } catch (err) {
+    console.error("Failed to generate token", err);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
