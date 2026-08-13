@@ -7,7 +7,7 @@
 ### Your codebase has opinions. VibeForge reads them.
 
 [![npm version](https://img.shields.io/npm/v/@0xjoy/vibeforge?style=flat-square&color=7c3aed)](https://www.npmjs.com/package/@0xjoy/vibeforge)
-[![GitHub Stars](https://img.shields.io/github/stars/0xJoy07/VibeForge?style=flat-square&color=f59e0b)](https://github.com/0xJoy07/VibeForge))
+[![GitHub Stars](https://img.shields.io/github/stars/0xJoy07/VibeForge?style=flat-square&color=f59e0b)](https://github.com/0xJoy07/VibeForge)
 [![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000?style=flat-square&logo=vercel)](https://vibeforgescanner.vercel.app)
 
 </div>
@@ -117,11 +117,6 @@ NeuroNexus/
 
 ## Contributing
 
-Issues and PRs are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening one.
+Issues and PRs are welcome.
 Please run `npx vibeforge scan ./src` on your changes before submitting.
 
----
-
-## License
-
-MIT - see [LICENSE](./LICENSE).
